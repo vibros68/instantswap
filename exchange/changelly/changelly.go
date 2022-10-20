@@ -10,10 +10,8 @@ import (
 )
 
 const (
-	API_BASE                   = "https://api.changelly.com/" // API endpoint
-	DEFAULT_HTTPCLIENT_TIMEOUT = 30                           // HTTP client timeout
-	LIBNAME                    = "changelly"
-	waitSec                    = 3
+	API_BASE = "https://api.changelly.com/" // API endpoint
+	LIBNAME  = "changelly"
 )
 
 func init() {
@@ -132,10 +130,6 @@ func (c *Changelly) EstimateAmount(vars lightningswap.ExchangeRateRequest) (res 
 
 	res = lightningswap.EstimateAmount{
 		EstimatedAmount: exchangeAmount,
-		/* NetworkFee:               tmpRes.NetworkFee,
-		ServiceCommission:        tmpRes.ServiceCommission,
-		TransactionSpeedForecast: tmpRes.TransactionSpeedForecast,
-		WarningMessage:           tmpRes.WarningMessage, */
 	}
 
 	return
@@ -208,10 +202,8 @@ func (c *Changelly) QueryLimits(fromCurr, toCurr string) (res lightningswap.Quer
 
 //CreateOrder create an instant exchange order
 func (c *Changelly) CreateOrder(orderInfo lightningswap.CreateOrder) (res lightningswap.CreateResultInfo, err error) {
-
 	nonce := strconv.FormatInt(time.Now().Unix(), 10)
 	amountStr := strconv.FormatFloat(orderInfo.InvoicedAmount, 'f', 8, 64)
-	//convert from interface orderInfo to local struct
 	params := map[string]string{
 		"from":          strings.ToLower(orderInfo.FromCurrency),
 		"to":            strings.ToLower(orderInfo.ToCurrency),
@@ -295,12 +287,6 @@ func (c *Changelly) CancelOrder(oId string) (res string, err error) {
 func (c *Changelly) OrderInfo(orderID string) (res lightningswap.OrderInfoResult, err error) {
 	nonce := strconv.FormatInt(time.Now().Unix(), 10)
 	params := map[string]string{"id": orderID}
-	/* tmpPayload := jsonRequest{
-		ID:      "orderInfo" + nonce,
-		JSONRPC: "2.0",
-		Method:  "getStatus",
-		Params:  params,
-	} */
 	tmpPayload := jsonRequest{
 		ID:      "orderInfo" + nonce,
 		JSONRPC: "2.0",
@@ -350,45 +336,39 @@ func (c *Changelly) OrderInfo(orderID string) (res lightningswap.OrderInfoResult
 		err = errors.New(LIBNAME + ":error: order info could not be found")
 		return
 	}
-	// maybe use later, tmp.NetworkFee
 	res = lightningswap.OrderInfoResult{
-		//Expires:      not available
-		//LastUpdate:    tmp.UpdatedAt,
 		ReceiveAmount:  finalOrderInfo.AmountTo,
 		Confirmations:  finalOrderInfo.PayinConfirmations,
 		TxID:           finalOrderInfo.PayoutHash,
 		Status:         finalOrderInfo.Status,
-		InternalStatus: lightningswap.OrderStatus(GetLocalStatus(finalOrderInfo.Status)),
+		InternalStatus: GetLocalStatus(finalOrderInfo.Status),
 	}
 	return
 }
 
-//Possible transaction statuses
-//new waiting confirming exchanging sending finished failed refunded expired
-
 //GetLocalStatus translate local status to idexchange status id
-func GetLocalStatus(status string) (iStatus int) {
+func GetLocalStatus(status string) (iStatus lightningswap.Status) {
 	status = strings.ToLower(status)
 	switch status {
 	case "finished":
-		return 1
+		return lightningswap.OrderStatusCompleted
 	case "waiting":
-		return 2
+		return lightningswap.OrderStatusExchanging
 	case "confirming":
-		return 3
+		return lightningswap.OrderStatusDepositReceived
 	case "refunded":
-		return 5
+		return lightningswap.OrderStatusRefunded
 	case "expired":
-		return 7
+		return lightningswap.OrderStatusExpired
 	case "new":
-		return 8
+		return lightningswap.OrderStatusNew
 	case "exchanging":
-		return 9
+		return lightningswap.OrderStatusExchanging
 	case "sending":
-		return 10
+		return lightningswap.OrderStatusSending
 	case "failed":
-		return 11
+		return lightningswap.OrderStatusFailed
 	default:
-		return 0
+		return lightningswap.OrderStatusUnknown
 	}
 }

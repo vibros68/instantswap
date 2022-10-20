@@ -208,8 +208,6 @@ func (c *FlypMe) QueryLimits(fromCurr, toCurr string) (res lightningswap.QueryLi
 	return
 }
 func (c *FlypMe) CreateOrder(orderInfo lightningswap.CreateOrder) (res lightningswap.CreateResultInfo, err error) {
-
-	//translate from interface struct to local struct because of type mismatches for invoicedamount, orderedamount needing to be a string becasue flypme needs a string
 	newOrder := CreateOrder{
 		Order: CreateOrderInfo{
 			FromCurrency:   orderInfo.FromCurrency,
@@ -398,13 +396,13 @@ func (c *FlypMe) OrderInfo(orderID string) (res lightningswap.OrderInfoResult, e
 		Confirmations:  tmp.Confirmations,
 		TxID:           tmp.TxID,
 		Status:         tmp.Status,
-		InternalStatus: lightningswap.OrderStatus(GetLocalStatus(tmp.Status)),
+		InternalStatus: GetLocalStatus(tmp.Status),
 	}
 	// flypme will return a pending txID like: pending_b1fdc5a8-e470-63c1-a034-eddf78c8fdf6
 	// while status still be completed. In this case we will return pending status in our system
 	if strings.Index(tmp.TxID, "_") != -1 {
 		res.TxID = ""
-		res.InternalStatus = lightningswap.OrderStatus(2)
+		res.InternalStatus = lightningswap.OrderStatusExchanging
 	}
 	return
 }
@@ -412,24 +410,24 @@ func (c *FlypMe) OrderInfo(orderID string) (res lightningswap.OrderInfoResult, e
 //Possible statuses are: WAITING_FOR_DEPOSIT, DEPOSIT_RECEIVED, DEPOSIT_CONFIRMED, EXECUTED, REFUNDED, CANCELED and EXPIRED
 
 //GetLocalStatus translate local status to idexchange status id
-func GetLocalStatus(status string) (iStatus int) {
+func GetLocalStatus(status string) lightningswap.Status {
 	status = strings.ToLower(status)
 	switch status {
 	case "executed":
-		return 1
+		return lightningswap.OrderStatusCompleted
 	case "waiting_for_deposit":
-		return 2
+		return lightningswap.OrderStatusNew
 	case "deposit_received":
-		return 3
+		return lightningswap.OrderStatusDepositReceived
 	case "deposit_confirmed":
-		return 4
+		return lightningswap.OrderStatusDepositConfirmed
 	case "refunded":
-		return 5
+		return lightningswap.OrderStatusRefunded
 	case "canceled":
-		return 6
+		return lightningswap.OrderStatusCanceled
 	case "expired":
-		return 7
+		return lightningswap.OrderStatusExpired
 	default:
-		return 0
+		return lightningswap.OrderStatusUnknown
 	}
 }

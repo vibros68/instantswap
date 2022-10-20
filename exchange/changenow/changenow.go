@@ -11,10 +11,8 @@ import (
 )
 
 const (
-	API_BASE                   = "https://changenow.io/api/v1/" // API endpoint
-	DEFAULT_HTTPCLIENT_TIMEOUT = 30                             // HTTP client timeout
-	LIBNAME                    = "changenow"
-	waitSec                    = 3
+	API_BASE = "https://changenow.io/api/v1/" // API endpoint
+	LIBNAME  = "changenow"
 )
 
 func init() {
@@ -43,25 +41,6 @@ type ChangeNow struct {
 //SetDebug set enable/disable http request/response dump
 func (c *ChangeNow) SetDebug(enable bool) {
 	c.conf.Debug = enable
-}
-func handleErr(r json.RawMessage) (err error) {
-	var errorVals map[string][]string
-	if err = json.Unmarshal(r, &errorVals); err != nil {
-		return err
-	}
-	if len(errorVals) > 0 {
-		var errorStr string
-		errorStr = LIBNAME + " error(s): "
-		for k, v := range errorVals {
-			errorStr += k + ": "
-			for i := 0; i < len(v); i++ {
-				errorStr += v[i] + ", "
-			}
-		}
-		err = errors.New(errorStr)
-		return
-	}
-	return nil
 }
 
 //CalculateExchangeRate get estimate on the amount for the exchange
@@ -152,7 +131,6 @@ func (c *ChangeNow) QueryActiveCurrencies(vars interface{}) (res []lightningswap
 
 //QueryLimits Get Exchange Rates (from, to)
 func (c *ChangeNow) QueryLimits(fromCurr, toCurr string) (res lightningswap.QueryLimits, err error) {
-
 	r, err := c.client.Do(API_BASE, "GET", "min-amount/"+fromCurr+"_"+toCurr, "", false)
 	if err != nil {
 		err = errors.New(LIBNAME + ":error: " + err.Error())
@@ -163,7 +141,6 @@ func (c *ChangeNow) QueryLimits(fromCurr, toCurr string) (res lightningswap.Quer
 		err = errors.New(LIBNAME + ":error: " + err.Error())
 		return
 	}
-	//minAmount := strconv.FormatFloat(tmp.Min, 'f', 8, 64)
 	res = lightningswap.QueryLimits{
 		Min: tmp.Min,
 	}
@@ -172,8 +149,6 @@ func (c *ChangeNow) QueryLimits(fromCurr, toCurr string) (res lightningswap.Quer
 
 //CreateOrder create an instant exchange order
 func (c *ChangeNow) CreateOrder(orderInfo lightningswap.CreateOrder) (res lightningswap.CreateResultInfo, err error) {
-
-	//convert from interface orderInfo to local struct
 	tmpOrderInfo := CreateOrder{
 		FromCurrency:      orderInfo.FromCurrency,
 		ToCurrency:        orderInfo.ToCurrency,
@@ -197,7 +172,6 @@ func (c *ChangeNow) CreateOrder(orderInfo lightningswap.CreateOrder) (res lightn
 	}
 	var tempItem interface{}
 	err = json.Unmarshal(r, &tempItem)
-	//fmt.Println(tempItem)
 	var tmp CreateResult
 	if err = json.Unmarshal(r, &tmp); err != nil {
 		err = errors.New(LIBNAME + ":error: " + err.Error())
@@ -245,50 +219,41 @@ func (c *ChangeNow) OrderInfo(orderID string) (res lightningswap.OrderInfoResult
 	} else {
 		amountRecv = tmp.AmountReceive
 	}
-	// maybe use later, tmp.NetworkFee
 	res = lightningswap.OrderInfoResult{
-		//Expires:      not available
-		LastUpdate:    tmp.UpdatedAt,
-		ReceiveAmount: amountRecv,
-		//Confirmations:  not available
+		LastUpdate:     tmp.UpdatedAt,
+		ReceiveAmount:  amountRecv,
 		TxID:           tmp.PayoutHash,
 		Status:         tmp.Status,
-		InternalStatus: lightningswap.OrderStatus(GetLocalStatus(tmp.Status)),
+		InternalStatus: GetLocalStatus(tmp.Status),
 	}
 	return
 }
 
+//GetLocalStatus translate local status to idexchange status id
 //Possible transaction statuses
 //new waiting confirming exchanging sending finished failed refunded expired
-
-//GetLocalStatus translate local status to idexchange status id
-func GetLocalStatus(status string) (iStatus int) {
+func GetLocalStatus(status string) lightningswap.Status {
 	status = strings.ToLower(status)
 	switch status {
 	case "finished":
-		return 1
+		return lightningswap.OrderStatusCompleted
 	case "waiting":
-		return 2
+		return lightningswap.OrderStatusWaitingForDeposit
 	case "confirming":
-		return 3
+		return lightningswap.OrderStatusDepositReceived
 	case "refunded":
-		return 5
+		return lightningswap.OrderStatusRefunded
 	case "expired":
-		return 7
+		return lightningswap.OrderStatusExpired
 	case "new":
-		return 8
+		return lightningswap.OrderStatusNew
 	case "exchanging":
-		return 9
+		return lightningswap.OrderStatusExchanging
 	case "sending":
-		return 10
+		return lightningswap.OrderStatusSending
 	case "failed":
-		return 11
+		return lightningswap.OrderStatusFailed
 	default:
-		return 0
+		return lightningswap.OrderStatusUnknown
 	}
 }
-
-/* func (c *ChangeNow) CheckOrderStatus(vars interface{}) (res string, err error) {
-	err = errors.New("changenow:error: not available for this exchange")
-	return
-} */

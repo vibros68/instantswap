@@ -147,7 +147,7 @@ func (c *SimpleSwap) OrderInfo(orderID string) (res lightningswap.OrderInfoResul
 		ReceiveAmount:  utils.StrToFloat(order.AmountTo),
 		TxID:           order.TxTo,
 		Status:         order.Status,
-		InternalStatus: lightningswap.OrderStatus(GetLocalStatus(order.Status)),
+		InternalStatus: GetLocalStatus(order.Status),
 		Confirmations:  "",
 	}, nil
 }
@@ -171,32 +171,32 @@ func parseResponseData(data []byte, obj interface{}) error {
 	return nil
 }
 
-//GetLocalStatus translate local status to idexchange status id
-func GetLocalStatus(status string) (iStatus int) {
+//GetLocalStatus translate local status to lightningswap.Status
+func GetLocalStatus(status string) lightningswap.Status {
 	// closed, confirming, exchanging, expired, failed, finished, refunded, sending, verifying, waiting
 	status = strings.ToLower(status)
 	switch status {
 	case "closed":
-		return 6
+		return lightningswap.OrderStatusCanceled
 	case "confirming":
-		return 3
+		return lightningswap.OrderStatusDepositReceived
 	case "exchanging":
-		return 4
+		return lightningswap.OrderStatusExchanging
 	case "expired":
-		return 7
+		return lightningswap.OrderStatusExpired
 	case "failed":
-		return 11
+		return lightningswap.OrderStatusFailed
 	case "finished":
-		return 1
+		return lightningswap.OrderStatusCompleted
 	case "refunded":
-		return 5
+		return lightningswap.OrderStatusRefunded
 	case "sending":
-		return 10
+		return lightningswap.OrderStatusSending
 	case "verifying":
-		return 10
+		return lightningswap.OrderStatusDepositReceived
 	case "waiting":
-		return 2
+		return lightningswap.OrderStatusWaitingForDeposit
 	default:
-		return 0
+		return lightningswap.OrderStatusUnknown
 	}
 }

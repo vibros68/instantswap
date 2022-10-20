@@ -236,42 +236,36 @@ func (c *ShapeShift) OrderInfo(orderID string) (res lightningswap.OrderInfoResul
 		TxID:          tmp.TxID,            //only shows when complete
 
 		Status:         tmp.Status,
-		InternalStatus: lightningswap.OrderStatus(GetLocalStatus(tmp.Status)),
+		InternalStatus: GetLocalStatus(tmp.Status),
 	}
 	return
 }
 
-//Possible transaction statuses
-//new waiting confirming exchanging sending finished failed refunded expired
-
-//GetLocalStatus translate local status to idexchange status id
-func GetLocalStatus(status string) (iStatus int) {
+// GetLocalStatus converts local status to lightningswap.Status
+// possible transaction statuses is:
+// new waiting confirming exchanging sending finished failed refunded expired
+func GetLocalStatus(status string) lightningswap.Status {
 	status = strings.ToLower(status)
 	switch status {
 	case "complete":
-		return 1
+		return lightningswap.OrderStatusCompleted
 	case "no_deposits":
-		return 2
+		return lightningswap.OrderStatusNew
 	case "confirming":
-		return 3
+		return lightningswap.OrderStatusDepositReceived
 	case "refunded":
-		return 5
+		return lightningswap.OrderStatusRefunded
 	case "expired":
-		return 7
+		return lightningswap.OrderStatusExpired
 	case "new":
-		return 8
+		return lightningswap.OrderStatusNew
 	case "received":
-		return 9
+		return lightningswap.OrderStatusDepositReceived
 	case "sending":
-		return 10
+		return lightningswap.OrderStatusSending
 	case "failed":
-		return 11
+		return lightningswap.OrderStatusFailed
 	default:
-		return 0
+		return lightningswap.OrderStatusUnknown
 	}
 }
-
-/* func (c *ShapeShift) CheckOrderStatus(vars interface{}) (res string, err error) {
-	err = errors.New("changenow:error: not available for this exchange")
-	return
-} */

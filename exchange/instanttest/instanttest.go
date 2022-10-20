@@ -5,7 +5,6 @@ import (
 	"fmt"
 	"math/rand"
 	"strconv"
-	"strings"
 	"time"
 
 	"code.cryptopower.dev/exchange/lightningswap"
@@ -181,7 +180,7 @@ func (c *InstantTest) OrderInfo(orderID string) (res lightningswap.OrderInfoResu
 			Confirmations:  "0",
 			TxID:           "",
 			Status:         "Waiting on deposit",
-			InternalStatus: lightningswap.OrderStatus(GetLocalStatus("waiting_for_deposit")),
+			InternalStatus: lightningswap.OrderStatusWaitingForDeposit,
 		}
 	} else {
 		res = lightningswap.OrderInfoResult{
@@ -191,36 +190,11 @@ func (c *InstantTest) OrderInfo(orderID string) (res lightningswap.OrderInfoResu
 			Confirmations:  "6",
 			TxID:           "e11525fe2e057fb19ec741ddcb972ec994f70348646368d960446a92c4d76dad",
 			Status:         "Completed",
-			InternalStatus: lightningswap.OrderStatus(GetLocalStatus("executed")),
+			InternalStatus: lightningswap.OrderStatusCompleted,
 		}
 	}
 
 	return
-}
-
-//Possible statuses are: WAITING_FOR_DEPOSIT, DEPOSIT_RECEIVED, DEPOSIT_CONFIRMED, EXECUTED, REFUNDED, CANCELED and EXPIRED
-
-//GetLocalStatus translate local status to idexchange status id
-func GetLocalStatus(status string) (iStatus int) {
-	status = strings.ToLower(status)
-	switch status {
-	case "executed":
-		return 1
-	case "waiting_for_deposit":
-		return 2
-	case "deposit_received":
-		return 3
-	case "deposit_confirmed":
-		return 4
-	case "refunded":
-		return 5
-	case "canceled":
-		return 6
-	case "expired":
-		return 7
-	default:
-		return 0
-	}
 }
 
 func randFloats(min, max float64, n int) []float64 {

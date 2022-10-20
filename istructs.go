@@ -159,34 +159,48 @@ type ExchangeRateInfo struct {
 	Signature       string //only used for evercoin for price estimate validation
 }
 
-type Status struct {
-	StatusID int
-	Status   string
-}
+type Status int
 
-func OrderStatus(statusID int) (status Status) {
-	statuses := map[int]string{
-		1:  "Completed",
-		2:  "Waiting for deposit",
-		3:  "Deposit received",
-		4:  "Deposit confirmed",
-		5:  "Refunded",
-		6:  "Canceled",
-		7:  "Expired",
-		8:  "New",
-		9:  "Exchanging",
-		10: "Sending",
-		11: "Failed",
-	}
-	for k, v := range statuses {
-		if k == statusID {
-			status.Status = v
-			status.StatusID = k
-			return status
-		}
-	}
-	status.Status = "Unknown"
-	status.StatusID = 0
-	return
+const (
+	OrderStatusUnknown Status = iota
+	OrderStatusCompleted
+	OrderStatusWaitingForDeposit
+	OrderStatusDepositReceived
+	OrderStatusDepositConfirmed
+	OrderStatusRefunded
+	OrderStatusCanceled
+	OrderStatusExpired
+	OrderStatusNew
+	OrderStatusExchanging
+	OrderStatusSending
+	OrderStatusFailed
+)
 
+func (s Status) String() string {
+	switch s {
+	case OrderStatusCompleted:
+		return "Completed"
+	case OrderStatusWaitingForDeposit:
+		return "Waiting for deposit"
+	case OrderStatusDepositReceived:
+		return "Deposit received"
+	case OrderStatusDepositConfirmed:
+		return "Deposit confirmed"
+	case OrderStatusRefunded:
+		return "Refunded"
+	case OrderStatusCanceled:
+		return "Canceled"
+	case OrderStatusExpired:
+		return "Expired"
+	case OrderStatusNew:
+		return "New"
+	case OrderStatusExchanging:
+		return "Exchanging"
+	case OrderStatusSending:
+		return "Sending"
+	case OrderStatusFailed:
+		return "Failed"
+	default:
+		return "Unknown"
+	}
 }
