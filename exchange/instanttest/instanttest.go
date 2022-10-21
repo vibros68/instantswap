@@ -127,6 +127,7 @@ func (c *InstantTest) QueryLimits(fromCurr, toCurr string) (res lightningswap.Qu
 	}
 	return
 }
+
 func (c *InstantTest) CreateOrder(orderInfo lightningswap.CreateOrder) (res lightningswap.CreateResultInfo, err error) {
 	storedTmpInvoicedAmount = 0
 	res = lightningswap.CreateResultInfo{
@@ -144,6 +145,7 @@ func (c *InstantTest) CreateOrder(orderInfo lightningswap.CreateOrder) (res ligh
 	storedTmpInvoicedAmount = orderInfo.InvoicedAmount
 	return
 }
+
 func (c *InstantTest) UpdateOrder(vars interface{}) (res lightningswap.UpdateOrderResultInfo, err error) {
 	orderInfo := vars.(UpdateOrder)
 

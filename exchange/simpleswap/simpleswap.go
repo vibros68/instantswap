@@ -123,11 +123,12 @@ func (c *SimpleSwap) CreateOrder(vars lightningswap.CreateOrder) (res lightnings
 func (c *SimpleSwap) UpdateOrder(vars interface{}) (res lightningswap.UpdateOrderResultInfo, err error) {
 	return
 }
+
 func (c *SimpleSwap) CancelOrder(orderID string) (res string, err error) {
 	return
 }
 
-//OrderInfo accepts orderID value and more if needed per lib
+// OrderInfo accepts orderID value and more if needed per lib.
 func (c *SimpleSwap) OrderInfo(orderID string) (res lightningswap.OrderInfoResult, err error) {
 	var r []byte
 	r, err = c.client.Do(API_BASE, "GET",
@@ -151,6 +152,7 @@ func (c *SimpleSwap) OrderInfo(orderID string) (res lightningswap.OrderInfoResul
 		Confirmations:  "",
 	}, nil
 }
+
 func (c *SimpleSwap) EstimateAmount(vars interface{}) (res lightningswap.EstimateAmount, err error) {
 	return
 }
@@ -171,9 +173,8 @@ func parseResponseData(data []byte, obj interface{}) error {
 	return nil
 }
 
-//GetLocalStatus translate local status to lightningswap.Status
+//GetLocalStatus translate local status to lightningswap.Status.
 func GetLocalStatus(status string) lightningswap.Status {
-	// closed, confirming, exchanging, expired, failed, finished, refunded, sending, verifying, waiting
 	status = strings.ToLower(status)
 	switch status {
 	case "closed":

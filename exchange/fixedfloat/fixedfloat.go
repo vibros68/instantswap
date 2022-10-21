@@ -17,19 +17,20 @@ const (
 )
 
 // The work on fixedfloat is pending
-
 func init() {
 	lightningswap.RegisterExchange(LIBNAME, func(config lightningswap.ExchangeConfig) (lightningswap.IDExchange, error) {
 		return New(config)
 	})
 }
 
+// FixedFloat represent a FixedFloat client.
 type FixedFloat struct {
 	conf   *lightningswap.ExchangeConfig
 	client *lightningswap.Client
 	lightningswap.IDExchange
 }
 
+// New return FixedFloat client.
 func New(conf lightningswap.ExchangeConfig) (*FixedFloat, error) {
 	if conf.ApiKey == "" || conf.ApiSecret == "" {
 		return nil, fmt.Errorf("%s:error: api kay and api secret must be provided", LIBNAME)
@@ -46,11 +47,12 @@ func New(conf lightningswap.ExchangeConfig) (*FixedFloat, error) {
 	return &FixedFloat{client: client, conf: &conf}, nil
 }
 
-//SetDebug set enable/disable http request/response dump
+// SetDebug set enable/disable http request/response dump
 func (c *FixedFloat) SetDebug(enable bool) {
 	c.conf.Debug = enable
 }
 
+// GetExchangeRateInfo get estimate on the amount for the exchange.
 func (c *FixedFloat) GetExchangeRateInfo(vars lightningswap.ExchangeRateRequest) (res lightningswap.ExchangeRateInfo, err error) {
 	var form = make(url.Values)
 	form.Set("fromCurrency", vars.From)
@@ -66,6 +68,7 @@ func (c *FixedFloat) GetExchangeRateInfo(vars lightningswap.ExchangeRateRequest)
 	return
 }
 
+// EstimateAmount get estimate on the amount for the exchange.
 func (c *FixedFloat) QueryRates(vars interface{}) (res []lightningswap.QueryRate, err error) {
 	return res, fmt.Errorf("not supported")
 }
@@ -79,7 +82,7 @@ func (c *FixedFloat) CreateOrder(vars lightningswap.CreateOrder) (res lightnings
 	return
 }
 
-//UpdateOrder accepts orderID value and more if needed per lib
+// UpdateOrder accepts orderID value and more if needed per lib.
 func (c *FixedFloat) UpdateOrder(vars interface{}) (res lightningswap.UpdateOrderResultInfo, err error) {
 	return
 }
@@ -87,17 +90,18 @@ func (c *FixedFloat) CancelOrder(orderID string) (res string, err error) {
 	return
 }
 
-//OrderInfo accepts orderID value and more if needed per lib
+// OrderInfo accepts string of orderID value.
 func (c *FixedFloat) OrderInfo(orderID string) (res lightningswap.OrderInfoResult, err error) {
 	return
 }
+
+// EstimateAmount get estimate on the amount for the exchange.
 func (c *FixedFloat) EstimateAmount(vars interface{}) (res lightningswap.EstimateAmount, err error) {
 	return
 }
 
-//GetLocalStatus translate local status to idexchange status id
+// GetLocalStatus translate local status to lightningswap.Status.
 func GetLocalStatus(status string) (iStatus int) {
-	// closed, confirming, exchanging, expired, failed, finished, refunded, sending, verifying, waiting
 	status = strings.ToLower(status)
 	switch status {
 	case "wait":

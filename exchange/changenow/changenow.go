@@ -21,7 +21,7 @@ func init() {
 	})
 }
 
-// New return an ChangeNow client struct with IDExchange implement
+// New return an ChangeNow client struct with IDExchange implement.
 func New(conf lightningswap.ExchangeConfig) (*ChangeNow, error) {
 	if conf.ApiKey == "" {
 		err := fmt.Errorf("APIKEY is blank")
@@ -31,19 +31,19 @@ func New(conf lightningswap.ExchangeConfig) (*ChangeNow, error) {
 	return &ChangeNow{client: client, conf: &conf}, nil
 }
 
-//ChangeNow represent a ChangeNow client
+// ChangeNow represent a ChangeNow client.
 type ChangeNow struct {
 	conf   *lightningswap.ExchangeConfig
 	client *lightningswap.Client
 	lightningswap.IDExchange
 }
 
-//SetDebug set enable/disable http request/response dump
+// SetDebug set enable/disable http request/response dump.
 func (c *ChangeNow) SetDebug(enable bool) {
 	c.conf.Debug = enable
 }
 
-//CalculateExchangeRate get estimate on the amount for the exchange
+// GetExchangeRateInfo get estimate on the amount for the exchange.
 func (c *ChangeNow) GetExchangeRateInfo(vars lightningswap.ExchangeRateRequest) (res lightningswap.ExchangeRateInfo, err error) {
 	limits, err := c.QueryLimits(vars.From, vars.To)
 	if err != nil {
@@ -68,7 +68,7 @@ func (c *ChangeNow) GetExchangeRateInfo(vars lightningswap.ExchangeRateRequest) 
 	return
 }
 
-//EstimateAmount get estimate on the amount for the exchange
+// EstimateAmount get estimate on the amount for the exchange.
 func (c *ChangeNow) EstimateAmount(vars lightningswap.ExchangeRateRequest) (res lightningswap.EstimateAmount, err error) {
 	amountStr := strconv.FormatFloat(vars.Amount, 'f', 8, 64)
 	r, err := c.client.Do(API_BASE, "GET",
@@ -94,16 +94,15 @@ func (c *ChangeNow) EstimateAmount(vars lightningswap.ExchangeRateRequest) (res 
 	return
 }
 
-//QueryRates (list of pairs LTC-BTC, BTC-LTC, etc)
+// QueryRates (list of pairs LTC-BTC, BTC-LTC, etc).
 func (c *ChangeNow) QueryRates(vars interface{}) (res []lightningswap.QueryRate, err error) {
 	//vars not used here
 	err = errors.New(LIBNAME + ":error: not available for this exchange")
 	return
 }
 
-//QueryActiveCurrencies get all active currencies
+// QueryActiveCurrencies get all active currencies.
 func (c *ChangeNow) QueryActiveCurrencies(vars interface{}) (res []lightningswap.ActiveCurr, err error) {
-	//vars not used here
 	r, err := c.client.Do(API_BASE, "GET", "currencies?active=true", "", false)
 	if err != nil {
 		err = errors.New(LIBNAME + ":error: " + err.Error())
@@ -129,7 +128,7 @@ func (c *ChangeNow) QueryActiveCurrencies(vars interface{}) (res []lightningswap
 	return
 }
 
-//QueryLimits Get Exchange Rates (from, to)
+// QueryLimits Get Exchange Rates (from, to).
 func (c *ChangeNow) QueryLimits(fromCurr, toCurr string) (res lightningswap.QueryLimits, err error) {
 	r, err := c.client.Do(API_BASE, "GET", "min-amount/"+fromCurr+"_"+toCurr, "", false)
 	if err != nil {
@@ -147,7 +146,7 @@ func (c *ChangeNow) QueryLimits(fromCurr, toCurr string) (res lightningswap.Quer
 	return
 }
 
-//CreateOrder create an instant exchange order
+// CreateOrder create an instant exchange order.
 func (c *ChangeNow) CreateOrder(orderInfo lightningswap.CreateOrder) (res lightningswap.CreateResultInfo, err error) {
 	tmpOrderInfo := CreateOrder{
 		FromCurrency:      orderInfo.FromCurrency,
@@ -189,19 +188,19 @@ func (c *ChangeNow) CreateOrder(orderInfo lightningswap.CreateOrder) (res lightn
 	return
 }
 
-//UpdateOrder not available for this exchange
+// UpdateOrder not available for this exchange.
 func (c *ChangeNow) UpdateOrder(vars interface{}) (res lightningswap.UpdateOrderResultInfo, err error) {
 	err = errors.New(LIBNAME + ":error:update not available for this exchange")
 	return
 }
 
-//CancelOrder not available for this exchange
+// CancelOrder not available for this exchange.
 func (c *ChangeNow) CancelOrder(oId string) (res string, err error) {
 	err = errors.New(LIBNAME + ":error:cancel not available for this exchange")
 	return
 }
 
-//OrderInfo get information on orderid/uuid
+// OrderInfo get information on orderid/uuid.
 func (c *ChangeNow) OrderInfo(orderID string) (res lightningswap.OrderInfoResult, err error) {
 	r, err := c.client.Do(API_BASE, "GET", "transactions/"+orderID+"/"+c.conf.ApiKey, "", false)
 	if err != nil {
@@ -229,9 +228,9 @@ func (c *ChangeNow) OrderInfo(orderID string) (res lightningswap.OrderInfoResult
 	return
 }
 
-//GetLocalStatus translate local status to idexchange status id
-//Possible transaction statuses
-//new waiting confirming exchanging sending finished failed refunded expired
+// GetLocalStatus translate local status to idexchange status id.
+// Possible transaction statuses:
+// new waiting confirming exchanging sending finished failed refunded expired
 func GetLocalStatus(status string) lightningswap.Status {
 	status = strings.ToLower(status)
 	switch status {

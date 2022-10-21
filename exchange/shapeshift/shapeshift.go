@@ -10,10 +10,8 @@ import (
 )
 
 const (
-	API_BASE                   = "https://shapeshift.io/" // API endpoint
-	DEFAULT_HTTPCLIENT_TIMEOUT = 30                       // HTTP client timeout
-	LIBNAME                    = "shapeshift"
-	waitSec                    = 3
+	API_BASE = "https://shapeshift.io/" // API endpoint
+	LIBNAME  = "shapeshift"
 )
 
 func init() {
@@ -37,19 +35,19 @@ func New(conf lightningswap.ExchangeConfig) (*ShapeShift, error) {
 	}, nil
 }
 
-//ShapeShift represent a ShapeShift client
+// ShapeShift represent a ShapeShift client.
 type ShapeShift struct {
 	client *lightningswap.Client
 	conf   *lightningswap.ExchangeConfig
 	lightningswap.IDExchange
 }
 
-//SetDebug set enable/disable http request/response dump
+// SetDebug set enable/disable http request/response dump.
 func (c *ShapeShift) SetDebug(enable bool) {
 	c.conf.Debug = enable
 }
 
-//CalculateExchangeRate get estimate on the amount for the exchange
+// GetExchangeRateInfo get estimate on the amount for the exchange.
 func (c *ShapeShift) GetExchangeRateInfo(vars lightningswap.ExchangeRateRequest) (res lightningswap.ExchangeRateInfo, err error) {
 	pair := strings.ToLower(vars.From) + "_" + strings.ToLower(vars.To)
 	r, err := c.client.Do(API_BASE, "GET", "marketinfo/"+pair, "", false)
@@ -75,7 +73,7 @@ func (c *ShapeShift) GetExchangeRateInfo(vars lightningswap.ExchangeRateRequest)
 	return
 }
 
-//EstimateAmount get estimate on the amount for the exchange
+// EstimateAmount get estimate on the amount for the exchange.
 func (c *ShapeShift) EstimateAmount(vars interface{}) (res lightningswap.EstimateAmount, err error) {
 	vals := vars.(map[string]interface{})
 	var to string
@@ -91,7 +89,6 @@ func (c *ShapeShift) EstimateAmount(vars interface{}) (res lightningswap.Estimat
 		}
 	}
 	pair := from + "_" + to
-	//amountStr := strconv.FormatFloat(amount, 'f', 8, 64)
 
 	r, err := c.client.Do(API_BASE, "GET", "rate/"+pair, "", false)
 	if err != nil {
@@ -116,21 +113,21 @@ func (c *ShapeShift) EstimateAmount(vars interface{}) (res lightningswap.Estimat
 	return
 }
 
-//QueryRates (list of pairs LTC-BTC, BTC-LTC, etc)
+// QueryRates (list of pairs LTC-BTC, BTC-LTC, etc)
 func (c *ShapeShift) QueryRates(vars interface{}) (res []lightningswap.QueryRate, err error) {
 	//vars not used here
 	err = errors.New(LIBNAME + ":error: not available for this exchange")
 	return
 }
 
-//QueryActiveCurrencies get all active currencies
+// QueryActiveCurrencies get all active currencies.
 func (c *ShapeShift) QueryActiveCurrencies(vars interface{}) (res []lightningswap.ActiveCurr, err error) {
 	//vars not used here
 	err = errors.New(LIBNAME + ":error: not available for this exchange")
 	return
 }
 
-//QueryLimits Get Exchange Rates (from, to)
+// QueryLimits Get Exchange Rates (from, to).
 func (c *ShapeShift) QueryLimits(fromCurr, toCurr string) (res lightningswap.QueryLimits, err error) {
 	pair := strings.ToLower(fromCurr) + "_" + strings.ToLower(toCurr)
 	r, err := c.client.Do(API_BASE, "GET", "marketinfo/"+pair, "", false)
@@ -154,7 +151,7 @@ func (c *ShapeShift) QueryLimits(fromCurr, toCurr string) (res lightningswap.Que
 	return
 }
 
-//CreateOrder create an instant exchange order
+// CreateOrder create an instant exchange order.
 func (c *ShapeShift) CreateOrder(orderInfo lightningswap.CreateOrder) (res lightningswap.CreateResultInfo, err error) {
 
 	tmpOrderInfo := CreateOrder{
@@ -193,26 +190,23 @@ func (c *ShapeShift) CreateOrder(orderInfo lightningswap.CreateOrder) (res light
 		FromCurrency:   tmp.CurrencyFrom,
 		ToCurrency:     tmp.CurrencyTo,
 		DepositAddress: tmp.DepositAddress,
-		/* ChargedFee:     tmp.APIExtraFee,
-		ExtraID:        tmp.PayinExtraID,
-		PayoutExtraID:  tmp.PayoutExtraID, */
 	}
 	return
 }
 
-//UpdateOrder not available for this exchange
+// UpdateOrder not available for this exchange.
 func (c *ShapeShift) UpdateOrder(vars interface{}) (res lightningswap.UpdateOrderResultInfo, err error) {
 	err = errors.New(LIBNAME + ":error:update not available for this exchange")
 	return
 }
 
-//CancelOrder not available for this exchange
+// CancelOrder not available for this exchange.
 func (c *ShapeShift) CancelOrder(orderID string) (res string, err error) {
 	err = errors.New(LIBNAME + ":error:cancel not available for this exchange")
 	return
 }
 
-//OrderInfo get information on orderid/uuid
+// OrderInfo get information on orderid/uuid.
 func (c *ShapeShift) OrderInfo(orderID string) (res lightningswap.OrderInfoResult, err error) {
 	r, err := c.client.Do(API_BASE, "GET", "txStat/"+orderID, "", false)
 	if err != nil {
@@ -230,7 +224,6 @@ func (c *ShapeShift) OrderInfo(orderID string) (res lightningswap.OrderInfoResul
 		return
 	}
 
-	// maybe use later, tmp.NetworkFee
 	res = lightningswap.OrderInfoResult{
 		ReceiveAmount: tmp.AmountReceiving, //only shows when complete
 		TxID:          tmp.TxID,            //only shows when complete
@@ -241,7 +234,7 @@ func (c *ShapeShift) OrderInfo(orderID string) (res lightningswap.OrderInfoResul
 	return
 }
 
-// GetLocalStatus converts local status to lightningswap.Status
+// GetLocalStatus converts local status to lightningswap.Status.
 // possible transaction statuses is:
 // new waiting confirming exchanging sending finished failed refunded expired
 func GetLocalStatus(status string) lightningswap.Status {

@@ -37,7 +37,7 @@ func New(conf lightningswap.ExchangeConfig) (*EverCoin, error) {
 	}, nil*/
 }
 
-//EverCoin represent a EverCoin client
+// EverCoin represent a EverCoin client
 type EverCoin struct {
 	client *lightningswap.Client
 	conf   *lightningswap.ExchangeConfig
@@ -261,7 +261,6 @@ func (c *EverCoin) OrderInfo(orderID string) (res lightningswap.OrderInfoResult,
 	return
 }
 func GetLocalStatus(statusID int) (iStatus int) {
-
 	switch statusID {
 	case 5: // All_Done
 		return 1

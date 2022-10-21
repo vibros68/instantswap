@@ -11,9 +11,6 @@ import (
 )
 
 const (
-	// NOTE: when changing the address from sandboxapi to live api if the version "v1" changes you will need to change the value in
-	// global/clients/exchangeclient/exchangeclient.go switch statements for auth related to "coinswitch" signature "/v1/" because
-	// there api requires just the info in the url after the first forward slash /... (temporary solution)
 	API_BASE = "https://sandboxapi.coinswitch.co/v1/" // API endpoint
 	LIBNAME  = "coinswitch"
 )
@@ -24,7 +21,7 @@ func init() {
 	})
 }
 
-// New return a instanciate struct
+// New return a CoinSwitch client.
 func New(conf lightningswap.ExchangeConfig) (*CoinSwitch, error) {
 	client := lightningswap.NewClient(LIBNAME, &conf, func(r *http.Request, body string) error {
 		ipAddress, err := utils.GetPublicIP()
@@ -41,19 +38,19 @@ func New(conf lightningswap.ExchangeConfig) (*CoinSwitch, error) {
 	}, nil
 }
 
-//CoinSwitch represent a CoinSwitch client
+// CoinSwitch represent a CoinSwitch client.
 type CoinSwitch struct {
 	client *lightningswap.Client
 	conf   *lightningswap.ExchangeConfig
 	lightningswap.IDExchange
 }
 
-//SetDebug set enable/disable http request/response dump
+// SetDebug set enable/disable http request/response dump.
 func (c *CoinSwitch) SetDebug(enable bool) {
 	c.conf.Debug = enable
 }
 
-//CalculateExchangeRate get estimate on the amount for the exchange
+// GetExchangeRateInfo get estimate on the amount for the exchange.
 func (c *CoinSwitch) GetExchangeRateInfo(vars lightningswap.ExchangeRateRequest) (res lightningswap.ExchangeRateInfo, err error) {
 	limits, err := c.QueryLimits(vars.From, vars.To)
 	if err != nil {
@@ -75,7 +72,7 @@ func (c *CoinSwitch) GetExchangeRateInfo(vars lightningswap.ExchangeRateRequest)
 	return
 }
 
-//EstimateAmount get estimate on the amount for the exchange
+// EstimateAmount get estimate on the amount for the exchange.
 func (c *CoinSwitch) EstimateAmount(vars lightningswap.ExchangeRateRequest) (res lightningswap.EstimateAmount, err error) {
 	estimateReq := EstimateRequest{
 		DepositCoin:     strings.ToLower(vars.From),
@@ -116,21 +113,21 @@ func (c *CoinSwitch) EstimateAmount(vars lightningswap.ExchangeRateRequest) (res
 	return
 }
 
-//QueryRates (list of pairs LTC-BTC, BTC-LTC, etc)
+// QueryRates (list of pairs LTC-BTC, BTC-LTC, etc).
 func (c *CoinSwitch) QueryRates(vars interface{}) (res []lightningswap.QueryRate, err error) {
 	//vars not used here
 	err = errors.New(LIBNAME + ":error: not available for this exchange")
 	return
 }
 
-//QueryActiveCurrencies get all active currencies
+// QueryActiveCurrencies get all active currencies.
 func (c *CoinSwitch) QueryActiveCurrencies(vars interface{}) (res []lightningswap.ActiveCurr, err error) {
 	//vars not used here
 	err = errors.New(LIBNAME + ":error: not available for this exchange")
 	return
 }
 
-//QueryLimits Get Exchange Rates (from, to)
+// QueryLimits Get Exchange Rates (from, to).
 func (c *CoinSwitch) QueryLimits(fromCurr, toCurr string) (res lightningswap.QueryLimits, err error) {
 	limitReq := QueryLimitsRequest{
 		DepositCoin:     strings.ToLower(fromCurr),
@@ -160,7 +157,6 @@ func (c *CoinSwitch) QueryLimits(fromCurr, toCurr string) (res lightningswap.Que
 		err = errors.New(LIBNAME + ":error: " + err.Error())
 		return
 	}
-	//minAmount := strconv.FormatFloat(tmp.Min, 'f', 8, 64)
 	res = lightningswap.QueryLimits{
 		Min: tmp.Min,
 		Max: tmp.Max,
@@ -168,7 +164,7 @@ func (c *CoinSwitch) QueryLimits(fromCurr, toCurr string) (res lightningswap.Que
 	return
 }
 
-//CreateOrder create an instant exchange order
+// CreateOrder create an instant exchange order.
 func (c *CoinSwitch) CreateOrder(orderInfo lightningswap.CreateOrder) (res lightningswap.CreateResultInfo, err error) {
 	destAddress := Address{Address: orderInfo.Destination}
 	refundAddress := Address{Address: orderInfo.RefundAddress}
@@ -219,19 +215,19 @@ func (c *CoinSwitch) CreateOrder(orderInfo lightningswap.CreateOrder) (res light
 	return
 }
 
-//UpdateOrder not available for this exchange
+// UpdateOrder not available for this exchange.
 func (c *CoinSwitch) UpdateOrder(vars interface{}) (res lightningswap.UpdateOrderResultInfo, err error) {
 	err = errors.New(LIBNAME + ":error:update not available for this exchange")
 	return
 }
 
-//CancelOrder not available for this exchange
+// CancelOrder not available for this exchange.
 func (c *CoinSwitch) CancelOrder(oId string) (res string, err error) {
 	err = errors.New(LIBNAME + ":error:cancel not available for this exchange")
 	return
 }
 
-//OrderInfo get information on orderid/uuid
+// OrderInfo get information on orderid/uuid.
 func (c *CoinSwitch) OrderInfo(oId string) (res lightningswap.OrderInfoResult, err error) {
 	r, err := c.client.Do(API_BASE, "GET", "order/"+oId, "", false)
 	if err != nil {
@@ -253,7 +249,8 @@ func (c *CoinSwitch) OrderInfo(oId string) (res lightningswap.OrderInfoResult, e
 		return
 	}
 
-	// Once the deposit is detected on blockchain "validTill" will be NULL which indicates there is no expiry for the order
+	// Once the deposit is detected on blockchain "validTill" will be NULL which indicates
+	// there is no expiry for the order
 	res = lightningswap.OrderInfoResult{
 		Expires:        tmp.ValidTill,
 		ReceiveAmount:  tmp.DestinationCoinAmount,
@@ -264,7 +261,7 @@ func (c *CoinSwitch) OrderInfo(oId string) (res lightningswap.OrderInfoResult, e
 	return
 }
 
-//GetLocalStatus translate local status to idexchange status id
+// GetLocalStatus translate local status to lightningswap.Status.
 func GetLocalStatus(status string) lightningswap.Status {
 	status = strings.ToLower(status)
 	switch status {

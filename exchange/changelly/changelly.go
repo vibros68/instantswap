@@ -4,6 +4,7 @@ import (
 	"code.cryptopower.dev/exchange/lightningswap"
 	"encoding/json"
 	"errors"
+	"fmt"
 	"strconv"
 	"strings"
 	"time"
@@ -29,14 +30,14 @@ func New(conf lightningswap.ExchangeConfig) (*Changelly, error) {
 	}, nil
 }
 
-//Changelly represent a Changelly client
+// Changelly represent a Changelly client.
 type Changelly struct {
 	client *lightningswap.Client
 	conf   *lightningswap.ExchangeConfig
 	lightningswap.IDExchange
 }
 
-//SetDebug set enable/disable http request/response dump
+// SetDebug set enable/disable http request/response dump.
 func (c *Changelly) SetDebug(enable bool) {
 	c.conf.Debug = enable
 }
@@ -46,15 +47,12 @@ func handleErr(r json.RawMessage) (err error) {
 		return err
 	}
 	if errorVal.Message != "" {
-		var errorStr string
-		errorStr = LIBNAME + ":error: " + errorVal.Message
-		err = errors.New(errorStr)
-		return
+		return fmt.Errorf("%s:error: %s", LIBNAME, errorVal.Message)
 	}
 	return nil
 }
 
-//CalculateExchangeRate get estimate on the amount for the exchange
+// GetExchangeRateInfo get estimate on the amount for the exchange.
 func (c *Changelly) GetExchangeRateInfo(vars lightningswap.ExchangeRateRequest) (res lightningswap.ExchangeRateInfo, err error) {
 	limits, err := c.QueryLimits(vars.From, vars.To)
 	if err != nil {
@@ -76,11 +74,10 @@ func (c *Changelly) GetExchangeRateInfo(vars lightningswap.ExchangeRateRequest) 
 		Max:             limits.Max,
 		EstimatedAmount: estimate.EstimatedAmount,
 	}
-
 	return
 }
 
-//EstimateAmount get estimate on the amount for the exchange
+// EstimateAmount get estimate on the amount for the exchange.
 func (c *Changelly) EstimateAmount(vars lightningswap.ExchangeRateRequest) (res lightningswap.EstimateAmount, err error) {
 	amountStr := strconv.FormatFloat(vars.Amount, 'f', 8, 64)
 	nonce := strconv.FormatInt(time.Now().Unix(), 10)
@@ -135,21 +132,21 @@ func (c *Changelly) EstimateAmount(vars lightningswap.ExchangeRateRequest) (res 
 	return
 }
 
-//QueryRates (list of pairs LTC-BTC, BTC-LTC, etc)
+// QueryRates (list of pairs LTC-BTC, BTC-LTC, etc).
 func (c *Changelly) QueryRates(vars interface{}) (res []lightningswap.QueryRate, err error) {
 	//vars not used here
 	err = errors.New(LIBNAME + ":error: not available for this exchange")
 	return
 }
 
-//QueryActiveCurrencies get all active currencies
+// QueryActiveCurrencies get all active currencies.
 func (c *Changelly) QueryActiveCurrencies(vars interface{}) (res []lightningswap.ActiveCurr, err error) {
 	//vars not used here
 	err = errors.New(LIBNAME + ":error: not available for this exchange")
 	return
 }
 
-//QueryLimits Get Exchange Rates (from, to)
+// QueryLimits Get Exchange Rates (from, to).
 func (c *Changelly) QueryLimits(fromCurr, toCurr string) (res lightningswap.QueryLimits, err error) {
 	nonce := strconv.FormatInt(time.Now().Unix(), 10)
 	params := map[string]string{"from": strings.ToLower(fromCurr), "to": strings.ToLower(toCurr)}
@@ -200,7 +197,7 @@ func (c *Changelly) QueryLimits(fromCurr, toCurr string) (res lightningswap.Quer
 	return
 }
 
-//CreateOrder create an instant exchange order
+// CreateOrder create an instant exchange order.
 func (c *Changelly) CreateOrder(orderInfo lightningswap.CreateOrder) (res lightningswap.CreateResultInfo, err error) {
 	nonce := strconv.FormatInt(time.Now().Unix(), 10)
 	amountStr := strconv.FormatFloat(orderInfo.InvoicedAmount, 'f', 8, 64)
@@ -271,19 +268,19 @@ func (c *Changelly) CreateOrder(orderInfo lightningswap.CreateOrder) (res lightn
 	return
 }
 
-//UpdateOrder not available for this exchange
+// UpdateOrder not available for this exchange.
 func (c *Changelly) UpdateOrder(vars interface{}) (res lightningswap.UpdateOrderResultInfo, err error) {
 	err = errors.New(LIBNAME + ":error:update not available for this exchange")
 	return
 }
 
-//CancelOrder not available for this exchange
+// CancelOrder not available for this exchange.
 func (c *Changelly) CancelOrder(oId string) (res string, err error) {
 	err = errors.New(LIBNAME + ":error:cancel not available for this exchange")
 	return
 }
 
-//OrderInfo get information on orderid/uuid
+// OrderInfo get information on orderid/uuid.
 func (c *Changelly) OrderInfo(orderID string) (res lightningswap.OrderInfoResult, err error) {
 	nonce := strconv.FormatInt(time.Now().Unix(), 10)
 	params := map[string]string{"id": orderID}
@@ -346,7 +343,7 @@ func (c *Changelly) OrderInfo(orderID string) (res lightningswap.OrderInfoResult
 	return
 }
 
-//GetLocalStatus translate local status to idexchange status id
+// GetLocalStatus translate local status to lightningswap.Status.
 func GetLocalStatus(status string) (iStatus lightningswap.Status) {
 	status = strings.ToLower(status)
 	switch status {

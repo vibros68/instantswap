@@ -5,7 +5,6 @@ import (
 	"encoding/json"
 	"errors"
 	"fmt"
-	"math/rand"
 	"strconv"
 	"strings"
 	"time"
@@ -13,9 +12,7 @@ import (
 
 const (
 	API_BASE = "https://flyp.me/api/v1/" // API endpoint
-	//API_VERSION                = "v1"                      // API version
-	DEFAULT_HTTPCLIENT_TIMEOUT = 30 // HTTP client timeout
-	LIBNAME                    = "flypme"
+	LIBNAME  = "flypme"
 )
 
 func init() {
@@ -24,7 +21,7 @@ func init() {
 	})
 }
 
-// New return a instanciate struct
+// New return a FlypMe struct.
 func New(conf lightningswap.ExchangeConfig) (*FlypMe, error) {
 	client := lightningswap.NewClient(LIBNAME, &conf)
 	return &FlypMe{
@@ -33,17 +30,18 @@ func New(conf lightningswap.ExchangeConfig) (*FlypMe, error) {
 	}, nil
 }
 
-//FlypMe represent a FlypMe client
+// FlypMe represent a flyp.me exchange client.
 type FlypMe struct {
 	client *lightningswap.Client
 	conf   *lightningswap.ExchangeConfig
 	lightningswap.IDExchange
 }
 
-//SetDebug set enable/disable http request/response dump
+// SetDebug set enable/disable http request/response dump.
 func (c *FlypMe) SetDebug(enable bool) {
 	c.conf.Debug = enable
 }
+
 func handleErr(r json.RawMessage) (err error) {
 	var errorVals map[string][]string
 	if err = json.Unmarshal(r, &errorVals); err != nil {
@@ -64,11 +62,7 @@ func handleErr(r json.RawMessage) (err error) {
 	return nil
 }
 
-const (
-	waitSec = 3
-)
-
-//CalculateExchangeRate get estimate on the amount for the exchange
+// GetExchangeRateInfo get estimate on the amount for the exchange.
 func (c *FlypMe) GetExchangeRateInfo(vars lightningswap.ExchangeRateRequest) (res lightningswap.ExchangeRateInfo, err error) {
 	limits, err := c.QueryLimits(vars.From, vars.To)
 	if err != nil {
@@ -101,7 +95,7 @@ func (c *FlypMe) GetExchangeRateInfo(vars lightningswap.ExchangeRateRequest) (re
 	rateFinal := 1 / exchangeRate
 	min := limits.Min * rateFinal * 1.5
 	max := limits.Max * rateFinal
-	//fmt.Printf("\nmin: %v max: %v", min, max )
+
 	res = lightningswap.ExchangeRateInfo{
 		ExchangeRate:    rateFinal,
 		Min:             min,
@@ -112,14 +106,14 @@ func (c *FlypMe) GetExchangeRateInfo(vars lightningswap.ExchangeRateRequest) (re
 	return
 }
 
-//EstimateAmount get estimate on the amount for the exchange
+// EstimateAmount get estimate on the amount for the exchange.
 func (c *FlypMe) EstimateAmount(vars interface{}) (res lightningswap.EstimateAmount, err error) {
 	//vars not used here
 	err = errors.New(LIBNAME + ":error: not available for this exchange")
 	return
 }
 
-//QueryRates (list of pairs LTC-BTC, BTC-LTC, etc)
+// QueryRates (list of pairs LTC-BTC, BTC-LTC, etc).
 func (c *FlypMe) QueryRates(vars interface{}) (res []lightningswap.QueryRate, err error) {
 	//vars not used here
 	r, err := c.client.Do(API_BASE, "GET", "data/exchange_rates", "", false)
@@ -138,14 +132,14 @@ func (c *FlypMe) QueryRates(vars interface{}) (res []lightningswap.QueryRate, er
 	for k, v := range data {
 		val := (v).(string)
 		tmpQ := lightningswap.QueryRate{Name: k, Value: val}
-		//fmt.Println(k, v, "(string)")
 		tmpArr = append(tmpArr, tmpQ)
-
 	}
 	res = tmpArr
 
 	return
 }
+
+// QueryActiveCurrencies returns Flypme's supported currencies
 func (c *FlypMe) QueryActiveCurrencies(vars interface{}) (res []lightningswap.ActiveCurr, err error) {
 	//vars not used here
 	r, err := c.client.Do(API_BASE, "GET", "currencies", "", false)
@@ -177,17 +171,13 @@ func (c *FlypMe) QueryActiveCurrencies(vars interface{}) (res []lightningswap.Ac
 			return tmpArr, err
 		}
 
-		//fmt.Printf("curr: %v", curr)
-		//fmt.Println(k, v, "(string)")
 		tmpArr = append(tmpArr, activeCurr)
-
 	}
 	res = tmpArr
-
 	return
 }
 
-//QueryLimits Get Exchange Rates (from, to)
+// QueryLimits Get Exchange Rates (from, to).
 func (c *FlypMe) QueryLimits(fromCurr, toCurr string) (res lightningswap.QueryLimits, err error) {
 
 	r, err := c.client.Do(API_BASE, "GET", "order/limits/"+fromCurr+"/"+toCurr, "", false)
@@ -207,6 +197,7 @@ func (c *FlypMe) QueryLimits(fromCurr, toCurr string) (res lightningswap.QueryLi
 	}
 	return
 }
+
 func (c *FlypMe) CreateOrder(orderInfo lightningswap.CreateOrder) (res lightningswap.CreateResultInfo, err error) {
 	newOrder := CreateOrder{
 		Order: CreateOrderInfo{
@@ -240,11 +231,6 @@ func (c *FlypMe) CreateOrder(orderInfo lightningswap.CreateOrder) (res lightning
 			return
 		}
 	}
-	/* sleepSeconds := random(2 , 8)
-
-	fmt.Printf("\nwaiting %v seconds to accept order... ", sleepSeconds)
-	time.Sleep(time.Second * time.Duration(sleepSeconds))  */
-	//accept order
 	acceptOrder := UUID{
 		UUID: tmp.Order.UUID,
 	}
@@ -287,6 +273,8 @@ func (c *FlypMe) CreateOrder(orderInfo lightningswap.CreateOrder) (res lightning
 
 	return
 }
+
+// UpdateOrder update the information of an order.
 func (c *FlypMe) UpdateOrder(vars interface{}) (res lightningswap.UpdateOrderResultInfo, err error) {
 	orderInfo := vars.(UpdateOrder)
 	payload, err := json.Marshal(orderInfo)
@@ -326,11 +314,8 @@ func (c *FlypMe) UpdateOrder(vars interface{}) (res lightningswap.UpdateOrderRes
 
 	return
 }
-func random(min, max int) int {
-	rand.Seed(time.Now().Unix())
-	return rand.Intn(max-min) + min
-}
 
+// CancelOrder will delete an order based on its id.
 func (c *FlypMe) CancelOrder(orderId string) (res string, err error) {
 	cancelOrder := UUID{
 		UUID: orderId,
@@ -362,7 +347,8 @@ func (c *FlypMe) CancelOrder(orderId string) (res string, err error) {
 	return
 }
 
-//OrderInfo accepts string of orderID value
+// OrderInfo accepts string of orderID value and return
+// its information
 func (c *FlypMe) OrderInfo(orderID string) (res lightningswap.OrderInfoResult, err error) {
 	getOrderInfo := UUID{
 		UUID: orderID,
@@ -407,9 +393,8 @@ func (c *FlypMe) OrderInfo(orderID string) (res lightningswap.OrderInfoResult, e
 	return
 }
 
-//Possible statuses are: WAITING_FOR_DEPOSIT, DEPOSIT_RECEIVED, DEPOSIT_CONFIRMED, EXECUTED, REFUNDED, CANCELED and EXPIRED
-
-//GetLocalStatus translate local status to idexchange status id
+// GetLocalStatus translate local status to lightningswap.Status
+// Possible statuses are: WAITING_FOR_DEPOSIT, DEPOSIT_RECEIVED, DEPOSIT_CONFIRMED, EXECUTED, REFUNDED, CANCELED and EXPIRED
 func GetLocalStatus(status string) lightningswap.Status {
 	status = strings.ToLower(status)
 	switch status {
