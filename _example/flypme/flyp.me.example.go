@@ -41,7 +41,7 @@ func main() {
 	// use OrderInfo to get order status
 	orderInfo, err := exchange.OrderInfo(order.UUID)
 
-	fmt.Println(orderInfo.InternalStatus.Status)
+	fmt.Println(orderInfo.InternalStatus.String())
 	// when ever the trading is done, the exchange will return the transaction id in
 	// orderInfo.TxID
 }

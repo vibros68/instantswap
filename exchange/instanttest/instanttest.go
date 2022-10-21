@@ -28,7 +28,7 @@ func init() {
 	})
 }
 
-// New return a instanciate struct
+// New return an InstantTest struct.
 func New(conf lightningswap.ExchangeConfig) (*InstantTest, error) {
 	client := lightningswap.NewClient(LIBNAME, &conf)
 	return &InstantTest{
@@ -37,14 +37,14 @@ func New(conf lightningswap.ExchangeConfig) (*InstantTest, error) {
 	}, nil
 }
 
-//InstantTest represent a InstantTest client
+// InstantTest represent a InstantTest client.
 type InstantTest struct {
 	client *lightningswap.Client
 	conf   *lightningswap.ExchangeConfig
 	lightningswap.IDExchange
 }
 
-//CalculateExchangeRate get estimate on the amount for the exchange
+// GetExchangeRateInfo get estimate on the amount for the exchange.
 func (c *InstantTest) GetExchangeRateInfo(vars lightningswap.ExchangeRateRequest) (res lightningswap.ExchangeRateInfo, err error) {
 
 	limits, err := c.QueryLimits(vars.From, vars.To)
@@ -78,7 +78,6 @@ func (c *InstantTest) GetExchangeRateInfo(vars lightningswap.ExchangeRateRequest
 	rateFinal := 1 / exchangeRate
 	min := limits.Min * rateFinal
 	max := limits.Max * rateFinal
-	//fmt.Printf("\nmin: %v max: %v", min, max )
 	res = lightningswap.ExchangeRateInfo{
 		ExchangeRate:    rateFinal,
 		Min:             min,
@@ -89,14 +88,14 @@ func (c *InstantTest) GetExchangeRateInfo(vars lightningswap.ExchangeRateRequest
 	return
 }
 
-//EstimateAmount get estimate on the amount for the exchange
+// EstimateAmount get estimate on the amount for the exchange.
 func (c *InstantTest) EstimateAmount(vars interface{}) (res lightningswap.EstimateAmount, err error) {
 	//vars not used here
 	err = errors.New(LIBNAME + ":error: not available for this exchange")
 	return
 }
 
-//QueryRates (list of pairs LTC-BTC, BTC-LTC, etc)
+// QueryRates (list of pairs LTC-BTC, BTC-LTC, etc).
 func (c *InstantTest) QueryRates(vars interface{}) (res []lightningswap.QueryRate, err error) {
 	randExchangeRate := randFloats(RateMin, RateMax, 1)
 	rateStr := fmt.Sprintf("%.8f", (1.0 / randExchangeRate[0]))
@@ -118,7 +117,7 @@ func (c *InstantTest) QueryActiveCurrencies(vars interface{}) (res []lightningsw
 	return
 }
 
-//QueryLimits Get Exchange Rates (from, to)
+// QueryLimits Get Exchange Rates (from, to).
 func (c *InstantTest) QueryLimits(fromCurr, toCurr string) (res lightningswap.QueryLimits, err error) {
 
 	res = lightningswap.QueryLimits{
@@ -170,13 +169,11 @@ func (c *InstantTest) CancelOrder(orderID string) (res string, err error) {
 	return
 }
 
-//OrderInfo accepts string of orderID value
+// OrderInfo accepts string of orderID value.
 func (c *InstantTest) OrderInfo(orderID string) (res lightningswap.OrderInfoResult, err error) {
 	trys++
-	fmt.Printf("\ntrys %v", trys)
 	if trys == 1 {
 		res = lightningswap.OrderInfoResult{
-			//LastUpdate:   not available
 			Expires:        1440,
 			ReceiveAmount:  (storedTmpInvoicedAmount / storedTmpExchangeRate),
 			Confirmations:  "0",
@@ -186,7 +183,6 @@ func (c *InstantTest) OrderInfo(orderID string) (res lightningswap.OrderInfoResu
 		}
 	} else {
 		res = lightningswap.OrderInfoResult{
-			//LastUpdate:   not available
 			Expires:        1440,
 			ReceiveAmount:  (storedTmpInvoicedAmount / storedTmpExchangeRate),
 			Confirmations:  "6",

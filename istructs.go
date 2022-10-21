@@ -122,7 +122,7 @@ type AcceptOrderResult struct {
 	Order          AcceptOrderResultInfo `json:"order"`
 }
 
-//INFO
+// OrderInfoResult
 type OrderInfoResult struct {
 	Expires        int
 	LastUpdate     string // should be datetime object
@@ -137,7 +137,6 @@ type UUID struct {
 	UUID string `json:"uuid"`
 }
 
-//changenow.io addition
 type EstimateAmount struct {
 	EstimatedAmount          float64     `json:"estimatedAmount"` //destinationCurrency
 	DepositAmount            float64     `json:"depositAmount,omitempty"`
@@ -151,12 +150,15 @@ type EstimateAmount struct {
 }
 
 type ExchangeRateInfo struct {
-	Min             float64
-	Max             float64 // Max = 0 mean there are no limited
+	// Min is the smallest amount will be accepted by the exchange
+	Min float64
+	// Max is the maximum amount will be accepted by the exchange
+	// return Max = 0 means: there are not limited amount
+	Max             float64
 	ExchangeRate    float64
 	EstimatedAmount float64
 	MaxOrder        float64
-	Signature       string //only used for evercoin for price estimate validation
+	Signature       string
 }
 
 type Status int

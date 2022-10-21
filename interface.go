@@ -7,7 +7,6 @@ import (
 )
 
 type IDExchange interface {
-	//flypme base
 	QueryRates(vars interface{}) (res []QueryRate, err error)
 	QueryLimits(fromCurr, toCurr string) (res QueryLimits, err error)
 	CreateOrder(vars CreateOrder) (res CreateResultInfo, err error)
