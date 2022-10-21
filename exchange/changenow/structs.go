@@ -2,8 +2,6 @@ package changenow
 
 import (
 	"encoding/json"
-	//"strings"
-	//"encoding/json"
 )
 
 //base json structure

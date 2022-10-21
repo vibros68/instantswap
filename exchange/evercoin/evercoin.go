@@ -1,24 +1,20 @@
 package evercoin
 
 import (
-	"fmt"
-	"time"
-	//"strconv"
+	"code.cryptopower.dev/exchange/lightningswap"
 	"encoding/json"
 	"errors"
-
-	"code.cryptopower.dev/exchange/lightningswap"
+	"fmt"
+	"time"
 )
 
 const (
 	API_BASE = "https://test.evercoin.com/v1/" // TEST API endpoint
-	//API_BASE                   = "https://api.evercoin.com/v1/" // LIVE API endpoint
+	// API_BASE                   = "https://api.evercoin.com/v1/" // LIVE API endpoint
 
-	//NOTE:
-	//EverCoin exchange requires you to email support@evercoin.com to get a production api key
-
-	DEFAULT_HTTPCLIENT_TIMEOUT = 30 // HTTP client timeout
-	LIBNAME                    = "evercoin"
+	// NOTE:
+	// EverCoin exchange requires you to email support@evercoin.com to get a production api key.
+	LIBNAME = "evercoin"
 )
 
 func init() {

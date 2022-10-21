@@ -1,10 +1,5 @@
 package shapeshift
 
-//"encoding/json"
-//"strings"
-//"encoding/json"
-
-//used
 type MarketInfoResponse struct {
 	Pair      string  `json:"pair"`
 	Limit     float64 `json:"limit"`

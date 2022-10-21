@@ -2,8 +2,6 @@ package changelly
 
 import (
 	"encoding/json"
-	//"strings"
-	//"encoding/json"
 )
 
 //base json structure
