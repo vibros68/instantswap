@@ -204,7 +204,7 @@ func (c *FlypMe) CreateOrder(orderInfo lightningswap.CreateOrder) (res lightning
 			FromCurrency:   orderInfo.FromCurrency,
 			ToCurrency:     orderInfo.ToCurrency,
 			InvoicedAmount: strconv.FormatFloat(orderInfo.InvoicedAmount, 'f', 8, 64), //amount in "from" currency
-			OrderedAmount:  "",                                                        //amount in "to" currency
+			OrderedAmount:  "",                                                        //amount in "to" currency (should be set to 0 for changenow, )
 			Destination:    orderInfo.Destination,
 			RefundAddress:  orderInfo.RefundAddress,
 		},
