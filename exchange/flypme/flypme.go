@@ -1,7 +1,7 @@
 package flypme
 
 import (
-	"code.cryptopower.dev/exchange/lightningswap"
+	"code.cryptopower.dev/exchange/instantswap"
 	"encoding/json"
 	"errors"
 	"fmt"
@@ -16,14 +16,14 @@ const (
 )
 
 func init() {
-	lightningswap.RegisterExchange(LIBNAME, func(config lightningswap.ExchangeConfig) (lightningswap.IDExchange, error) {
+	instantswap.RegisterExchange(LIBNAME, func(config instantswap.ExchangeConfig) (instantswap.IDExchange, error) {
 		return New(config)
 	})
 }
 
 // New return a FlypMe struct.
-func New(conf lightningswap.ExchangeConfig) (*FlypMe, error) {
-	client := lightningswap.NewClient(LIBNAME, &conf)
+func New(conf instantswap.ExchangeConfig) (*FlypMe, error) {
+	client := instantswap.NewClient(LIBNAME, &conf)
 	return &FlypMe{
 		client: client,
 		conf:   &conf,
@@ -32,9 +32,9 @@ func New(conf lightningswap.ExchangeConfig) (*FlypMe, error) {
 
 // FlypMe represent a flyp.me exchange client.
 type FlypMe struct {
-	client *lightningswap.Client
-	conf   *lightningswap.ExchangeConfig
-	lightningswap.IDExchange
+	client *instantswap.Client
+	conf   *instantswap.ExchangeConfig
+	instantswap.IDExchange
 }
 
 // SetDebug set enable/disable http request/response dump.
@@ -63,7 +63,7 @@ func handleErr(r json.RawMessage) (err error) {
 }
 
 // GetExchangeRateInfo get estimate on the amount for the exchange.
-func (c *FlypMe) GetExchangeRateInfo(vars lightningswap.ExchangeRateRequest) (res lightningswap.ExchangeRateInfo, err error) {
+func (c *FlypMe) GetExchangeRateInfo(vars instantswap.ExchangeRateRequest) (res instantswap.ExchangeRateInfo, err error) {
 	limits, err := c.QueryLimits(vars.From, vars.To)
 	if err != nil {
 		err = errors.New(LIBNAME + ":error: " + err.Error())
@@ -75,7 +75,7 @@ func (c *FlypMe) GetExchangeRateInfo(vars lightningswap.ExchangeRateRequest) (re
 		err = errors.New(LIBNAME + ":error: " + err.Error())
 		return
 	}
-	var rate lightningswap.QueryRate
+	var rate instantswap.QueryRate
 	var pair = fmt.Sprintf("%s-%s", vars.From, vars.To)
 	for _, v := range exchangeRates {
 		if v.Name == pair {
@@ -96,7 +96,7 @@ func (c *FlypMe) GetExchangeRateInfo(vars lightningswap.ExchangeRateRequest) (re
 	min := limits.Min * rateFinal * 1.5
 	max := limits.Max * rateFinal
 
-	res = lightningswap.ExchangeRateInfo{
+	res = instantswap.ExchangeRateInfo{
 		ExchangeRate:    rateFinal,
 		Min:             min,
 		Max:             max,
@@ -107,14 +107,14 @@ func (c *FlypMe) GetExchangeRateInfo(vars lightningswap.ExchangeRateRequest) (re
 }
 
 // EstimateAmount get estimate on the amount for the exchange.
-func (c *FlypMe) EstimateAmount(vars interface{}) (res lightningswap.EstimateAmount, err error) {
+func (c *FlypMe) EstimateAmount(vars interface{}) (res instantswap.EstimateAmount, err error) {
 	//vars not used here
 	err = errors.New(LIBNAME + ":error: not available for this exchange")
 	return
 }
 
 // QueryRates (list of pairs LTC-BTC, BTC-LTC, etc).
-func (c *FlypMe) QueryRates(vars interface{}) (res []lightningswap.QueryRate, err error) {
+func (c *FlypMe) QueryRates(vars interface{}) (res []instantswap.QueryRate, err error) {
 	//vars not used here
 	r, err := c.client.Do(API_BASE, "GET", "data/exchange_rates", "", false)
 	if err != nil {
@@ -122,7 +122,7 @@ func (c *FlypMe) QueryRates(vars interface{}) (res []lightningswap.QueryRate, er
 		return
 	}
 
-	tmpArr := []lightningswap.QueryRate{}
+	tmpArr := []instantswap.QueryRate{}
 	var v interface{}
 	if err = json.Unmarshal(r, &v); err != nil {
 		err = errors.New(LIBNAME + ":error: " + err.Error())
@@ -131,7 +131,7 @@ func (c *FlypMe) QueryRates(vars interface{}) (res []lightningswap.QueryRate, er
 	data := v.(map[string]interface{})
 	for k, v := range data {
 		val := (v).(string)
-		tmpQ := lightningswap.QueryRate{Name: k, Value: val}
+		tmpQ := instantswap.QueryRate{Name: k, Value: val}
 		tmpArr = append(tmpArr, tmpQ)
 	}
 	res = tmpArr
@@ -140,7 +140,7 @@ func (c *FlypMe) QueryRates(vars interface{}) (res []lightningswap.QueryRate, er
 }
 
 // QueryActiveCurrencies returns Flypme's supported currencies
-func (c *FlypMe) QueryActiveCurrencies(vars interface{}) (res []lightningswap.ActiveCurr, err error) {
+func (c *FlypMe) QueryActiveCurrencies(vars interface{}) (res []instantswap.ActiveCurr, err error) {
 	//vars not used here
 	r, err := c.client.Do(API_BASE, "GET", "currencies", "", false)
 	if err != nil {
@@ -148,7 +148,7 @@ func (c *FlypMe) QueryActiveCurrencies(vars interface{}) (res []lightningswap.Ac
 		return
 	}
 
-	tmpArr := []lightningswap.ActiveCurr{}
+	tmpArr := []instantswap.ActiveCurr{}
 	var v interface{}
 	if err = json.Unmarshal(r, &v); err != nil {
 		err = errors.New(LIBNAME + ":error: " + err.Error())
@@ -164,7 +164,7 @@ func (c *FlypMe) QueryActiveCurrencies(vars interface{}) (res []lightningswap.Ac
 			return tmpArr, err
 		}
 
-		var activeCurr lightningswap.ActiveCurr
+		var activeCurr instantswap.ActiveCurr
 		err = json.Unmarshal(currMarsh, &activeCurr)
 		if err != nil {
 			err = errors.New(LIBNAME + ":error: " + err.Error())
@@ -178,7 +178,7 @@ func (c *FlypMe) QueryActiveCurrencies(vars interface{}) (res []lightningswap.Ac
 }
 
 // QueryLimits Get Exchange Rates (from, to).
-func (c *FlypMe) QueryLimits(fromCurr, toCurr string) (res lightningswap.QueryLimits, err error) {
+func (c *FlypMe) QueryLimits(fromCurr, toCurr string) (res instantswap.QueryLimits, err error) {
 
 	r, err := c.client.Do(API_BASE, "GET", "order/limits/"+fromCurr+"/"+toCurr, "", false)
 	if err != nil {
@@ -191,20 +191,20 @@ func (c *FlypMe) QueryLimits(fromCurr, toCurr string) (res lightningswap.QueryLi
 		return
 	}
 
-	res = lightningswap.QueryLimits{
+	res = instantswap.QueryLimits{
 		Max: tmp.Max,
 		Min: tmp.Min,
 	}
 	return
 }
 
-func (c *FlypMe) CreateOrder(orderInfo lightningswap.CreateOrder) (res lightningswap.CreateResultInfo, err error) {
+func (c *FlypMe) CreateOrder(orderInfo instantswap.CreateOrder) (res instantswap.CreateResultInfo, err error) {
 	newOrder := CreateOrder{
 		Order: CreateOrderInfo{
 			FromCurrency:   orderInfo.FromCurrency,
 			ToCurrency:     orderInfo.ToCurrency,
 			InvoicedAmount: strconv.FormatFloat(orderInfo.InvoicedAmount, 'f', 8, 64), //amount in "from" currency
-			OrderedAmount:  "",                                                        //amount in "to" currency
+			OrderedAmount:  "",                                                        //amount in "to" currency (should be set to 0 for changenow, )
 			Destination:    orderInfo.Destination,
 			RefundAddress:  orderInfo.RefundAddress,
 		},
@@ -258,7 +258,7 @@ func (c *FlypMe) CreateOrder(orderInfo lightningswap.CreateOrder) (res lightning
 		}
 	}
 
-	res = lightningswap.CreateResultInfo{
+	res = instantswap.CreateResultInfo{
 		ChargedFee:     tmp.Order.ChargedFee,
 		Destination:    tmp.Order.Destination,
 		ExchangeRate:   tmp.Order.ExchangeRate,
@@ -275,7 +275,7 @@ func (c *FlypMe) CreateOrder(orderInfo lightningswap.CreateOrder) (res lightning
 }
 
 // UpdateOrder update the information of an order.
-func (c *FlypMe) UpdateOrder(vars interface{}) (res lightningswap.UpdateOrderResultInfo, err error) {
+func (c *FlypMe) UpdateOrder(vars interface{}) (res instantswap.UpdateOrderResultInfo, err error) {
 	orderInfo := vars.(UpdateOrder)
 	payload, err := json.Marshal(orderInfo)
 	if err != nil {
@@ -301,7 +301,7 @@ func (c *FlypMe) UpdateOrder(vars interface{}) (res lightningswap.UpdateOrderRes
 		}
 	}
 
-	res = lightningswap.UpdateOrderResultInfo{
+	res = instantswap.UpdateOrderResultInfo{
 		ChargedFee:     tmp.Order.ChargedFee,
 		Destination:    tmp.Order.Destination,
 		ExchangeRate:   tmp.Order.ExchangeRate,
@@ -349,7 +349,7 @@ func (c *FlypMe) CancelOrder(orderId string) (res string, err error) {
 
 // OrderInfo accepts string of orderID value and return
 // its information
-func (c *FlypMe) OrderInfo(orderID string) (res lightningswap.OrderInfoResult, err error) {
+func (c *FlypMe) OrderInfo(orderID string) (res instantswap.OrderInfoResult, err error) {
 	getOrderInfo := UUID{
 		UUID: orderID,
 	}
@@ -375,7 +375,7 @@ func (c *FlypMe) OrderInfo(orderID string) (res lightningswap.OrderInfoResult, e
 			return
 		}
 	}
-	res = lightningswap.OrderInfoResult{
+	res = instantswap.OrderInfoResult{
 		//LastUpdate:   not available
 		Expires:        tmp.Expires,
 		ReceiveAmount:  tmp.Order.OrderedAmount,
@@ -388,31 +388,31 @@ func (c *FlypMe) OrderInfo(orderID string) (res lightningswap.OrderInfoResult, e
 	// while status still be completed. In this case we will return pending status in our system
 	if strings.Index(tmp.TxID, "_") != -1 {
 		res.TxID = ""
-		res.InternalStatus = lightningswap.OrderStatusExchanging
+		res.InternalStatus = instantswap.OrderStatusExchanging
 	}
 	return
 }
 
-// GetLocalStatus translate local status to lightningswap.Status
+// GetLocalStatus translate local status to instantswap.Status
 // Possible statuses are: WAITING_FOR_DEPOSIT, DEPOSIT_RECEIVED, DEPOSIT_CONFIRMED, EXECUTED, REFUNDED, CANCELED and EXPIRED
-func GetLocalStatus(status string) lightningswap.Status {
+func GetLocalStatus(status string) instantswap.Status {
 	status = strings.ToLower(status)
 	switch status {
 	case "executed":
-		return lightningswap.OrderStatusCompleted
+		return instantswap.OrderStatusCompleted
 	case "waiting_for_deposit":
-		return lightningswap.OrderStatusNew
+		return instantswap.OrderStatusNew
 	case "deposit_received":
-		return lightningswap.OrderStatusDepositReceived
+		return instantswap.OrderStatusDepositReceived
 	case "deposit_confirmed":
-		return lightningswap.OrderStatusDepositConfirmed
+		return instantswap.OrderStatusDepositConfirmed
 	case "refunded":
-		return lightningswap.OrderStatusRefunded
+		return instantswap.OrderStatusRefunded
 	case "canceled":
-		return lightningswap.OrderStatusCanceled
+		return instantswap.OrderStatusCanceled
 	case "expired":
-		return lightningswap.OrderStatusExpired
+		return instantswap.OrderStatusExpired
 	default:
-		return lightningswap.OrderStatusUnknown
+		return instantswap.OrderStatusUnknown
 	}
 }

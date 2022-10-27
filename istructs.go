@@ -1,4 +1,4 @@
-package lightningswap
+package instantswap
 
 type ExchangeConfig struct {
 	Debug     bool

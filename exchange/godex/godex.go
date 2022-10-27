@@ -1,8 +1,8 @@
 package godex
 
 import (
-	"code.cryptopower.dev/exchange/lightningswap"
-	"code.cryptopower.dev/exchange/lightningswap/utils"
+	"code.cryptopower.dev/exchange/instantswap"
+	"code.cryptopower.dev/exchange/instantswap/utils"
 	"encoding/json"
 	"fmt"
 	"net/http"
@@ -16,22 +16,22 @@ const (
 )
 
 func init() {
-	lightningswap.RegisterExchange(LIBNAME, func(config lightningswap.ExchangeConfig) (lightningswap.IDExchange, error) {
+	instantswap.RegisterExchange(LIBNAME, func(config instantswap.ExchangeConfig) (instantswap.IDExchange, error) {
 		return New(config)
 	})
 }
 
 type GoDEX struct {
-	conf   *lightningswap.ExchangeConfig
-	client *lightningswap.Client
-	lightningswap.IDExchange
+	conf   *instantswap.ExchangeConfig
+	client *instantswap.Client
+	instantswap.IDExchange
 }
 
-func New(conf lightningswap.ExchangeConfig) (*GoDEX, error) {
+func New(conf instantswap.ExchangeConfig) (*GoDEX, error) {
 	if conf.ApiKey == "" {
 		return nil, fmt.Errorf("%s:error: APIKEY is blank", LIBNAME)
 	}
-	client := lightningswap.NewClient(LIBNAME, &conf, func(r *http.Request, body string) error {
+	client := instantswap.NewClient(LIBNAME, &conf, func(r *http.Request, body string) error {
 		if r.Method == http.MethodPost || r.Method == http.MethodPut {
 			r.Header.Set("public-key", conf.ApiKey)
 		}
@@ -53,7 +53,7 @@ func (c *GoDEX) queryRate(req InfoRequest) ([]byte, error) {
 	return c.client.Do(API_BASE, "POST", "info", string(body), false)
 }
 
-func (c *GoDEX) GetExchangeRateInfo(vars lightningswap.ExchangeRateRequest) (res lightningswap.ExchangeRateInfo, err error) {
+func (c *GoDEX) GetExchangeRateInfo(vars instantswap.ExchangeRateRequest) (res instantswap.ExchangeRateInfo, err error) {
 	var req = InfoRequest{
 		From:   strings.ToUpper(vars.From),
 		To:     strings.ToUpper(vars.To),
@@ -83,7 +83,7 @@ func (c *GoDEX) GetExchangeRateInfo(vars lightningswap.ExchangeRateRequest) (res
 		}
 		estimatedAmount = 0
 	}
-	return lightningswap.ExchangeRateInfo{
+	return instantswap.ExchangeRateInfo{
 		Min:             utils.StrToFloat(info.MinAmount.String()),
 		Max:             utils.StrToFloat(info.MaxAmount.String()),
 		ExchangeRate:    1 / utils.StrToFloat(info.Rate.String()),
@@ -93,19 +93,19 @@ func (c *GoDEX) GetExchangeRateInfo(vars lightningswap.ExchangeRateRequest) (res
 	}, err
 }
 
-func (c *GoDEX) QueryRates(vars interface{}) (res []lightningswap.QueryRate, err error) {
+func (c *GoDEX) QueryRates(vars interface{}) (res []instantswap.QueryRate, err error) {
 	return res, fmt.Errorf("not supported")
 }
 
-func (c *GoDEX) QueryActiveCurrencies(vars interface{}) (res []lightningswap.ActiveCurr, err error) {
+func (c *GoDEX) QueryActiveCurrencies(vars interface{}) (res []instantswap.ActiveCurr, err error) {
 	return
 }
 
-func (c *GoDEX) QueryLimits(fromCurr, toCurr string) (res lightningswap.QueryLimits, err error) {
+func (c *GoDEX) QueryLimits(fromCurr, toCurr string) (res instantswap.QueryLimits, err error) {
 	return
 }
 
-func (c *GoDEX) CreateOrder(vars lightningswap.CreateOrder) (res lightningswap.CreateResultInfo, err error) {
+func (c *GoDEX) CreateOrder(vars instantswap.CreateOrder) (res instantswap.CreateResultInfo, err error) {
 	var txReq = TransactionReq{
 		CoinFrom:          vars.FromCurrency,
 		CoinTo:            vars.ToCurrency,
@@ -132,7 +132,7 @@ func (c *GoDEX) CreateOrder(vars lightningswap.CreateOrder) (res lightningswap.C
 	if err != nil {
 		return res, err
 	}
-	return lightningswap.CreateResultInfo{
+	return instantswap.CreateResultInfo{
 		ChargedFee:     utils.StrToFloat(tx.Fee.String()),
 		Destination:    tx.Withdrawal,
 		ExchangeRate:   utils.StrToFloat(tx.Rate.String()),
@@ -149,7 +149,7 @@ func (c *GoDEX) CreateOrder(vars lightningswap.CreateOrder) (res lightningswap.C
 }
 
 //UpdateOrder accepts orderID value and more if needed per lib.
-func (c *GoDEX) UpdateOrder(vars interface{}) (res lightningswap.UpdateOrderResultInfo, err error) {
+func (c *GoDEX) UpdateOrder(vars interface{}) (res instantswap.UpdateOrderResultInfo, err error) {
 	return
 }
 func (c *GoDEX) CancelOrder(orderID string) (res string, err error) {
@@ -157,7 +157,7 @@ func (c *GoDEX) CancelOrder(orderID string) (res string, err error) {
 }
 
 //OrderInfo accepts orderID value and more if needed per lib.
-func (c *GoDEX) OrderInfo(orderID string) (res lightningswap.OrderInfoResult, err error) {
+func (c *GoDEX) OrderInfo(orderID string) (res instantswap.OrderInfoResult, err error) {
 	var r []byte
 	r, err = c.client.Do(API_BASE, "GET", fmt.Sprintf("transaction/%s", orderID), "", false)
 	if err != nil {
@@ -168,7 +168,7 @@ func (c *GoDEX) OrderInfo(orderID string) (res lightningswap.OrderInfoResult, er
 	if err != nil {
 		return res, err
 	}
-	return lightningswap.OrderInfoResult{
+	return instantswap.OrderInfoResult{
 		Expires:        0,
 		LastUpdate:     "",
 		ReceiveAmount:  utils.StrToFloat(tx.RealWithdrawalAmount.String()),
@@ -178,34 +178,34 @@ func (c *GoDEX) OrderInfo(orderID string) (res lightningswap.OrderInfoResult, er
 		Confirmations:  "",
 	}, err
 }
-func (c *GoDEX) EstimateAmount(vars interface{}) (res lightningswap.EstimateAmount, err error) {
+func (c *GoDEX) EstimateAmount(vars interface{}) (res instantswap.EstimateAmount, err error) {
 	return
 }
 
-//GetLocalStatus translate local status to lightningswap.Status.
-func GetLocalStatus(status string) lightningswap.Status {
+//GetLocalStatus translate local status to instantswap.Status.
+func GetLocalStatus(status string) instantswap.Status {
 	// closed, confirming, exchanging, expired, failed, finished, refunded, sending, verifying, waiting
 	status = strings.ToLower(status)
 	switch status {
 	case "wait":
-		return lightningswap.OrderStatusNew
+		return instantswap.OrderStatusNew
 	case "confirmation":
-		return lightningswap.OrderStatusDepositReceived
+		return instantswap.OrderStatusDepositReceived
 	case "confirmed":
-		return lightningswap.OrderStatusDepositConfirmed
+		return instantswap.OrderStatusDepositConfirmed
 	case "exchanging":
-		return lightningswap.OrderStatusExchanging
+		return instantswap.OrderStatusExchanging
 	case "sending", "sending_confirmation":
-		return lightningswap.OrderStatusSending
+		return instantswap.OrderStatusSending
 	case "success":
-		return lightningswap.OrderStatusCompleted
+		return instantswap.OrderStatusCompleted
 	case "overdue":
-		return lightningswap.OrderStatusExpired
+		return instantswap.OrderStatusExpired
 	case "error":
-		return lightningswap.OrderStatusFailed
+		return instantswap.OrderStatusFailed
 	case "refunded":
-		return lightningswap.OrderStatusRefunded
+		return instantswap.OrderStatusRefunded
 	default:
-		return lightningswap.OrderStatusUnknown
+		return instantswap.OrderStatusUnknown
 	}
 }

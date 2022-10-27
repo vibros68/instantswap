@@ -1,7 +1,7 @@
-package lightningswap
+package instantswap
 
 import (
-	"code.cryptopower.dev/exchange/lightningswap/utils"
+	"code.cryptopower.dev/exchange/instantswap/utils"
 	"fmt"
 	"io/ioutil"
 	"log"
