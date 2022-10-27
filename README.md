@@ -20,6 +20,10 @@ import (
     _ "code.cryptopower.dev/exchange/instantswap/exchange/flypme"
 )
 ```
+Now we are supporting exchanges: [changelly](https://changelly.com/), [changenow](https://changenow.io/), 
+[coinswitch](https://coinswitch.co/), [fixedfloat](https://fixedfloat.com/), [flypme](https://flyp.me/),
+[godex](https://godex.io/), [shapeshift](https://shapeshift.com/)
+
 
 Then you can initial your exchange client:
 ```
