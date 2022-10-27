@@ -5,7 +5,7 @@ It uses some instant exchanges api to do trading.
 
 ### Installing
 
-Using Cobra is instantswap. First, use go get to install the latest version of the library.
+First, use go get to install the latest version of the library.
 
 ```
 go get code.cryptopower.dev/exchange/instantswap
