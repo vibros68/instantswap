@@ -1,8 +1,8 @@
 package swapzone
 
 import (
-	"code.cryptopower.dev/exchange/lightningswap"
-	"code.cryptopower.dev/exchange/lightningswap/utils"
+	"code.cryptopower.dev/exchange/instantswap"
+	"code.cryptopower.dev/exchange/instantswap/utils"
 	"encoding/json"
 	"fmt"
 	"net/http"
@@ -16,17 +16,17 @@ const (
 )
 
 func init() {
-	lightningswap.RegisterExchange(LIBNAME, func(config lightningswap.ExchangeConfig) (lightningswap.IDExchange, error) {
+	instantswap.RegisterExchange(LIBNAME, func(config instantswap.ExchangeConfig) (instantswap.IDExchange, error) {
 		return New(config)
 	})
 }
 
 // New return a SwapZone client.
-func New(conf lightningswap.ExchangeConfig) (*SwapZone, error) {
+func New(conf instantswap.ExchangeConfig) (*SwapZone, error) {
 	if conf.ApiKey == "" {
 		return nil, fmt.Errorf("%s:error: APIKEY is blank", LIBNAME)
 	}
-	client := lightningswap.NewClient(LIBNAME, &conf, func(r *http.Request, body string) error {
+	client := instantswap.NewClient(LIBNAME, &conf, func(r *http.Request, body string) error {
 		r.Header.Set("x-api-key", conf.ApiKey)
 		r.Header.Set("Content-Type", "application/x-www-form-urlencoded")
 		return nil
@@ -36,9 +36,9 @@ func New(conf lightningswap.ExchangeConfig) (*SwapZone, error) {
 
 // SwapZone represent a SwapZone client.
 type SwapZone struct {
-	client *lightningswap.Client
-	conf   *lightningswap.ExchangeConfig
-	lightningswap.IDExchange
+	client *instantswap.Client
+	conf   *instantswap.ExchangeConfig
+	instantswap.IDExchange
 }
 
 // SetDebug set enable/disable http request/response dump.
@@ -46,7 +46,7 @@ func (c *SwapZone) SetDebug(enable bool) {
 	c.conf.Debug = enable
 }
 
-func (c *SwapZone) GetExchangeRateInfo(vars lightningswap.ExchangeRateRequest) (res lightningswap.ExchangeRateInfo, err error) {
+func (c *SwapZone) GetExchangeRateInfo(vars instantswap.ExchangeRateRequest) (res instantswap.ExchangeRateInfo, err error) {
 	var r []byte
 	r, err = c.client.Do(API_BASE, "GET",
 		fmt.Sprintf("exchange/get-rate?from=%s&to=%s&amount=%.8f&rateType=all&availableInUSA=false&chooseRate=best&noRefundAddress=false",
@@ -68,19 +68,19 @@ func (c *SwapZone) GetExchangeRateInfo(vars lightningswap.ExchangeRateRequest) (
 	return
 }
 
-func (c *SwapZone) QueryRates(vars interface{}) (res []lightningswap.QueryRate, err error) {
+func (c *SwapZone) QueryRates(vars interface{}) (res []instantswap.QueryRate, err error) {
 	return res, fmt.Errorf("not supported")
 }
 
-func (c *SwapZone) QueryActiveCurrencies(vars interface{}) (res []lightningswap.ActiveCurr, err error) {
+func (c *SwapZone) QueryActiveCurrencies(vars interface{}) (res []instantswap.ActiveCurr, err error) {
 	return
 }
 
-func (c *SwapZone) QueryLimits(fromCurr, toCurr string) (res lightningswap.QueryLimits, err error) {
+func (c *SwapZone) QueryLimits(fromCurr, toCurr string) (res instantswap.QueryLimits, err error) {
 	return
 }
 
-func (c *SwapZone) CreateOrder(vars lightningswap.CreateOrder) (res lightningswap.CreateResultInfo, err error) {
+func (c *SwapZone) CreateOrder(vars instantswap.CreateOrder) (res instantswap.CreateResultInfo, err error) {
 	var form = make(url.Values)
 	form.Set("from", strings.ToLower(vars.FromCurrency))
 	form.Set("to", strings.ToLower(vars.ToCurrency))
@@ -107,7 +107,7 @@ func (c *SwapZone) CreateOrder(vars lightningswap.CreateOrder) (res lightningswa
 	var order = tx.Transaction
 	var invoicedAmount = utils.StrToFloat(order.AmountDeposit)
 	var orderedAmount = utils.StrToFloat(order.AmountEstimated)
-	res = lightningswap.CreateResultInfo{
+	res = instantswap.CreateResultInfo{
 		ChargedFee:     0,
 		Destination:    order.AddressReceive,
 		ExchangeRate:   invoicedAmount / orderedAmount,
@@ -125,7 +125,7 @@ func (c *SwapZone) CreateOrder(vars lightningswap.CreateOrder) (res lightningswa
 }
 
 // UpdateOrder accepts orderID value and more if needed per lib.
-func (c *SwapZone) UpdateOrder(vars interface{}) (res lightningswap.UpdateOrderResultInfo, err error) {
+func (c *SwapZone) UpdateOrder(vars interface{}) (res instantswap.UpdateOrderResultInfo, err error) {
 	return
 }
 func (c *SwapZone) CancelOrder(orderID string) (res string, err error) {
@@ -133,7 +133,7 @@ func (c *SwapZone) CancelOrder(orderID string) (res string, err error) {
 }
 
 // OrderInfo accepts orderID value and more if needed per lib.
-func (c *SwapZone) OrderInfo(orderID string) (res lightningswap.OrderInfoResult, err error) {
+func (c *SwapZone) OrderInfo(orderID string) (res instantswap.OrderInfoResult, err error) {
 	var r []byte
 	r, err = c.client.Do(API_BASE, "GET",
 		fmt.Sprintf("exchange/tx?id=%s", orderID),
@@ -147,7 +147,7 @@ func (c *SwapZone) OrderInfo(orderID string) (res lightningswap.OrderInfoResult,
 		return
 	}
 	var order = tx.Transaction
-	res = lightningswap.OrderInfoResult{
+	res = instantswap.OrderInfoResult{
 		Expires:        0,
 		LastUpdate:     "",
 		ReceiveAmount:  0,
@@ -162,7 +162,7 @@ func (c *SwapZone) OrderInfo(orderID string) (res lightningswap.OrderInfoResult,
 	return
 }
 
-func (c *SwapZone) EstimateAmount(vars interface{}) (res lightningswap.EstimateAmount, err error) {
+func (c *SwapZone) EstimateAmount(vars interface{}) (res instantswap.EstimateAmount, err error) {
 	return
 }
 
@@ -179,27 +179,27 @@ func parseResponseData(data []byte, obj interface{}) error {
 	return nil
 }
 
-// GetLocalStatus translate local status to lightningswap.Status.
-func GetLocalStatus(status string) lightningswap.Status {
+// GetLocalStatus translate local status to instantswap.Status.
+func GetLocalStatus(status string) instantswap.Status {
 	status = strings.ToLower(status)
 	switch status {
 	case "waiting":
-		return lightningswap.OrderStatusNew
+		return instantswap.OrderStatusNew
 	case "confirming":
-		return lightningswap.OrderStatusDepositReceived
+		return instantswap.OrderStatusDepositReceived
 	case "exchanging":
-		return lightningswap.OrderStatusExchanging
+		return instantswap.OrderStatusExchanging
 	case "sending":
-		return lightningswap.OrderStatusSending
+		return instantswap.OrderStatusSending
 	case "finished":
-		return lightningswap.OrderStatusCompleted
+		return instantswap.OrderStatusCompleted
 	case "refunded":
-		return lightningswap.OrderStatusRefunded
+		return instantswap.OrderStatusRefunded
 	case "failed":
-		return lightningswap.OrderStatusFailed
+		return instantswap.OrderStatusFailed
 	case "overdue":
-		return lightningswap.OrderStatusExpired
+		return instantswap.OrderStatusExpired
 	default:
-		return lightningswap.OrderStatusUnknown
+		return instantswap.OrderStatusUnknown
 	}
 }

@@ -1,7 +1,7 @@
 package fixedfloat
 
 import (
-	"code.cryptopower.dev/exchange/lightningswap"
+	"code.cryptopower.dev/exchange/instantswap"
 	"crypto/hmac"
 	"crypto/sha256"
 	"encoding/hex"
@@ -18,24 +18,24 @@ const (
 
 // The work on fixedfloat is pending
 func init() {
-	lightningswap.RegisterExchange(LIBNAME, func(config lightningswap.ExchangeConfig) (lightningswap.IDExchange, error) {
+	instantswap.RegisterExchange(LIBNAME, func(config instantswap.ExchangeConfig) (instantswap.IDExchange, error) {
 		return New(config)
 	})
 }
 
 // FixedFloat represent a FixedFloat client.
 type FixedFloat struct {
-	conf   *lightningswap.ExchangeConfig
-	client *lightningswap.Client
-	lightningswap.IDExchange
+	conf   *instantswap.ExchangeConfig
+	client *instantswap.Client
+	instantswap.IDExchange
 }
 
 // New return FixedFloat client.
-func New(conf lightningswap.ExchangeConfig) (*FixedFloat, error) {
+func New(conf instantswap.ExchangeConfig) (*FixedFloat, error) {
 	if conf.ApiKey == "" || conf.ApiSecret == "" {
 		return nil, fmt.Errorf("%s:error: api kay and api secret must be provided", LIBNAME)
 	}
-	client := lightningswap.NewClient(LIBNAME, &conf, func(r *http.Request, body string) error {
+	client := instantswap.NewClient(LIBNAME, &conf, func(r *http.Request, body string) error {
 		key := []byte(conf.ApiSecret)
 		sig := hmac.New(sha256.New, key)
 		sig.Write([]byte(body))
@@ -53,7 +53,7 @@ func (c *FixedFloat) SetDebug(enable bool) {
 }
 
 // GetExchangeRateInfo get estimate on the amount for the exchange.
-func (c *FixedFloat) GetExchangeRateInfo(vars lightningswap.ExchangeRateRequest) (res lightningswap.ExchangeRateInfo, err error) {
+func (c *FixedFloat) GetExchangeRateInfo(vars instantswap.ExchangeRateRequest) (res instantswap.ExchangeRateInfo, err error) {
 	var form = make(url.Values)
 	form.Set("fromCurrency", vars.From)
 	form.Set("toCurrency", vars.To)
@@ -69,21 +69,21 @@ func (c *FixedFloat) GetExchangeRateInfo(vars lightningswap.ExchangeRateRequest)
 }
 
 // EstimateAmount get estimate on the amount for the exchange.
-func (c *FixedFloat) QueryRates(vars interface{}) (res []lightningswap.QueryRate, err error) {
+func (c *FixedFloat) QueryRates(vars interface{}) (res []instantswap.QueryRate, err error) {
 	return res, fmt.Errorf("not supported")
 }
-func (c *FixedFloat) QueryActiveCurrencies(vars interface{}) (res []lightningswap.ActiveCurr, err error) {
+func (c *FixedFloat) QueryActiveCurrencies(vars interface{}) (res []instantswap.ActiveCurr, err error) {
 	return
 }
-func (c *FixedFloat) QueryLimits(fromCurr, toCurr string) (res lightningswap.QueryLimits, err error) {
+func (c *FixedFloat) QueryLimits(fromCurr, toCurr string) (res instantswap.QueryLimits, err error) {
 	return
 }
-func (c *FixedFloat) CreateOrder(vars lightningswap.CreateOrder) (res lightningswap.CreateResultInfo, err error) {
+func (c *FixedFloat) CreateOrder(vars instantswap.CreateOrder) (res instantswap.CreateResultInfo, err error) {
 	return
 }
 
 // UpdateOrder accepts orderID value and more if needed per lib.
-func (c *FixedFloat) UpdateOrder(vars interface{}) (res lightningswap.UpdateOrderResultInfo, err error) {
+func (c *FixedFloat) UpdateOrder(vars interface{}) (res instantswap.UpdateOrderResultInfo, err error) {
 	return
 }
 func (c *FixedFloat) CancelOrder(orderID string) (res string, err error) {
@@ -91,16 +91,16 @@ func (c *FixedFloat) CancelOrder(orderID string) (res string, err error) {
 }
 
 // OrderInfo accepts string of orderID value.
-func (c *FixedFloat) OrderInfo(orderID string) (res lightningswap.OrderInfoResult, err error) {
+func (c *FixedFloat) OrderInfo(orderID string) (res instantswap.OrderInfoResult, err error) {
 	return
 }
 
 // EstimateAmount get estimate on the amount for the exchange.
-func (c *FixedFloat) EstimateAmount(vars interface{}) (res lightningswap.EstimateAmount, err error) {
+func (c *FixedFloat) EstimateAmount(vars interface{}) (res instantswap.EstimateAmount, err error) {
 	return
 }
 
-// GetLocalStatus translate local status to lightningswap.Status.
+// GetLocalStatus translate local status to instantswap.Status.
 func GetLocalStatus(status string) (iStatus int) {
 	status = strings.ToLower(status)
 	switch status {

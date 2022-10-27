@@ -1,3 +1,3 @@
-module code.cryptopower.dev/exchange/lightningswap
+module code.cryptopower.dev/exchange/instantswap
 
 go 1.18

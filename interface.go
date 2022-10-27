@@ -1,4 +1,4 @@
-package lightningswap
+package instantswap
 
 import (
 	"fmt"

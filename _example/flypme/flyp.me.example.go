@@ -1,14 +1,14 @@
 package main
 
 import (
-	"code.cryptopower.dev/exchange/lightningswap"
-	_ "code.cryptopower.dev/exchange/lightningswap/exchange/flypme"
+	"code.cryptopower.dev/exchange/instantswap"
+	_ "code.cryptopower.dev/exchange/instantswap/exchange/flypme"
 	"fmt"
 	"os"
 )
 
 func main() {
-	exchange, err := lightningswap.NewExchange("flypme", lightningswap.ExchangeConfig{
+	exchange, err := instantswap.NewExchange("flypme", instantswap.ExchangeConfig{
 		Debug:     false,
 		ApiKey:    "",
 		ApiSecret: "",
@@ -17,13 +17,13 @@ func main() {
 		fmt.Println(err)
 		os.Exit(1)
 	}
-	res, err := exchange.GetExchangeRateInfo(lightningswap.ExchangeRateRequest{
+	res, err := exchange.GetExchangeRateInfo(instantswap.ExchangeRateRequest{
 		From:   "BTC",
 		To:     "DCR",
 		Amount: 5,
 	})
 	fmt.Printf("%+v \n %v \n", res, err)
-	order, err := exchange.CreateOrder(lightningswap.CreateOrder{
+	order, err := exchange.CreateOrder(instantswap.CreateOrder{
 		RefundAddress:   "your_btc_address", // if the trading fail, the exchange will refund here
 		Destination:     "your_dcr_address", // your received dcr address
 		FromCurrency:    "BTC",
