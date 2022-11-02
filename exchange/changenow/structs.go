@@ -84,3 +84,14 @@ type EstimateAmount struct {
 	TransactionSpeedForecast string      `json:"transactionSpeedForecast"`
 	WarningMessage           interface{} `json:"warningMessage"`
 }
+
+type Currency struct {
+	Ticker            string `json:"ticker"`
+	Name              string `json:"name"`
+	Image             string `json:"image"`
+	HasExternalId     bool   `json:"hasExternalId"`
+	IsFiat            bool   `json:"isFiat"`
+	Featured          bool   `json:"featured"`
+	IsStable          bool   `json:"isStable"`
+	SupportsFixedRate bool   `json:"supportsFixedRate"`
+}

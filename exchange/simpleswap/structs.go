@@ -41,3 +41,19 @@ type Order struct {
 		CurrencyToTicker   string `json:"currency_to_ticker"`
 	} `json:"currencies"`
 }
+
+type Currency struct {
+	Name              string   `json:"name"`
+	Symbol            string   `json:"symbol"`
+	Network           string   `json:"network"`
+	HasExtraId        bool     `json:"has_extra_id"`
+	ExtraId           string   `json:"extra_id"`
+	Image             string   `json:"image"`
+	WarningsFrom      []string `json:"warnings_from"`
+	WarningsTo        []string `json:"warnings_to"`
+	ValidationAddress string   `json:"validation_address"`
+	ValidationExtra   string   `json:"validation_extra"`
+	AddressExplorer   string   `json:"address_explorer"`
+	TxExplorer        string   `json:"tx_explorer"`
+	ConfirmationsFrom string   `json:"confirmations_from"`
+}

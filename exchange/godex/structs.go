@@ -85,3 +85,13 @@ type Transaction struct {
 	RealDepositAmount    json.Number `json:"real_deposit_amount"`
 	RealWithdrawalAmount json.Number `json:"real_withdrawal_amount"`
 }
+
+type Currency struct {
+	Code      string      `json:"code"`
+	Name      string      `json:"name"`
+	Disabled  int         `json:"disabled"`
+	Icon      string      `json:"icon"`
+	HasExtra  int         `json:"has_extra"`
+	ExtraName interface{} `json:"extra_name"`
+	Explorer  interface{} `json:"explorer"`
+}

@@ -46,6 +46,50 @@ func (c *SwapZone) SetDebug(enable bool) {
 	c.conf.Debug = enable
 }
 
+func (c *SwapZone) GetCurrencies() (currencies []instantswap.Currency, err error) {
+	var r []byte
+	r, err = c.client.Do(API_BASE, "GET", "exchange/currencies", "", false)
+	if err != nil {
+		return
+	}
+	var szCurrencies []Currency
+	err = parseResponseData(r, &szCurrencies)
+	if err != nil {
+		return
+	}
+	currencies = make([]instantswap.Currency, len(szCurrencies))
+	for i, curr := range szCurrencies {
+		currencies[i] = instantswap.Currency{
+			Name:   curr.Name,
+			Symbol: curr.Ticker,
+		}
+	}
+	return
+}
+func (c *SwapZone) GetCurrenciesToPair(from string) (currencies []instantswap.Currency, err error) {
+	var r []byte
+	r, err = c.client.Do(API_BASE, "GET", "exchange/currencies", "", false)
+	if err != nil {
+		return
+	}
+	var szCurrencies []Currency
+	err = parseResponseData(r, &szCurrencies)
+	if err != nil {
+		return
+	}
+	currencies = []instantswap.Currency{}
+	for _, curr := range szCurrencies {
+		if strings.ToLower(curr.Ticker) == strings.ToLower(from) {
+			continue
+		}
+		currencies = append(currencies, instantswap.Currency{
+			Name:   curr.Name,
+			Symbol: curr.Ticker,
+		})
+	}
+	return
+}
+
 func (c *SwapZone) GetExchangeRateInfo(vars instantswap.ExchangeRateRequest) (res instantswap.ExchangeRateInfo, err error) {
 	var r []byte
 	r, err = c.client.Do(API_BASE, "GET",

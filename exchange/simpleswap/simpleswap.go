@@ -5,6 +5,7 @@ import (
 	"code.cryptopower.dev/exchange/instantswap/utils"
 	"encoding/json"
 	"fmt"
+	"net/http"
 	"strings"
 )
 
@@ -38,6 +39,50 @@ func (c *SimpleSwap) SetDebug(enable bool) {
 	c.conf.Debug = enable
 }
 
+func (c *SimpleSwap) GetCurrencies() (currencies []instantswap.Currency, err error) {
+	r, err := c.client.Do(API_BASE, http.MethodGet,
+		fmt.Sprintf("get_all_currencies?api_key=%s", c.conf.ApiKey),
+		"", false)
+	if err != nil {
+		return
+	}
+	var ssCurrencies []Currency
+	err = parseResponseData(r, &ssCurrencies)
+	if err != nil {
+		return
+	}
+	currencies = make([]instantswap.Currency, len(ssCurrencies))
+	for i, curr := range ssCurrencies {
+		currencies[i] = instantswap.Currency{
+			Name:   curr.Name,
+			Symbol: curr.Symbol,
+		}
+	}
+	return currencies, nil
+}
+
+func (c *SimpleSwap) GetCurrenciesToPair(from string) (currencies []instantswap.Currency, err error) {
+	r, err := c.client.Do(API_BASE, http.MethodGet,
+		fmt.Sprintf("get_pairs?api_key=%s&fixed=true&symbol=%s", c.conf.ApiKey, strings.ToLower(from)),
+		"", false)
+	if err != nil {
+		return
+	}
+	var ssCurrencies []string
+	err = parseResponseData(r, &ssCurrencies)
+	if err != nil {
+		return
+	}
+	currencies = make([]instantswap.Currency, len(ssCurrencies))
+	for i, curr := range ssCurrencies {
+		currencies[i] = instantswap.Currency{
+			Name:   curr,
+			Symbol: curr,
+		}
+	}
+	return
+}
+
 func (c *SimpleSwap) GetExchangeRateInfo(vars instantswap.ExchangeRateRequest) (res instantswap.ExchangeRateInfo, err error) {
 	var r []byte
 	r, err = c.client.Do(API_BASE, "GET",
@@ -66,12 +111,7 @@ func (c *SimpleSwap) GetExchangeRateInfo(vars instantswap.ExchangeRateRequest) (
 func (c *SimpleSwap) QueryRates(vars interface{}) (res []instantswap.QueryRate, err error) {
 	return res, fmt.Errorf("not supported")
 }
-func (c *SimpleSwap) QueryActiveCurrencies(vars interface{}) (res []instantswap.ActiveCurr, err error) {
-	return
-}
-func (c *SimpleSwap) QueryLimits(fromCurr, toCurr string) (res instantswap.QueryLimits, err error) {
-	return
-}
+
 func (c *SimpleSwap) CreateOrder(vars instantswap.CreateOrder) (res instantswap.CreateResultInfo, err error) {
 	var form = CreateExchange{
 		CurrencyFrom:      strings.ToLower(vars.FromCurrency),
@@ -160,9 +200,9 @@ func (c *SimpleSwap) EstimateAmount(vars interface{}) (res instantswap.EstimateA
 func parseResponseData(data []byte, obj interface{}) error {
 	var simpleSwapErr Error
 	err := json.Unmarshal(data, &simpleSwapErr)
-	if err != nil {
+	/*if err != nil {
 		return fmt.Errorf(string(data))
-	}
+	}*/
 	if err == nil && simpleSwapErr.Code > 0 && len(simpleSwapErr.Message) > 0 {
 		return fmt.Errorf(simpleSwapErr.Message)
 	}

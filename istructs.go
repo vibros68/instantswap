@@ -206,3 +206,10 @@ func (s Status) String() string {
 		return "Unknown"
 	}
 }
+
+type Currency struct {
+	Name     string
+	Symbol   string
+	IsFiat   bool
+	IsStable bool
+}

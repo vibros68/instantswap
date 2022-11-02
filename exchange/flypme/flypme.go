@@ -62,6 +62,51 @@ func handleErr(r json.RawMessage) (err error) {
 	return nil
 }
 
+func (c *FlypMe) GetCurrencies() (currencies []instantswap.Currency, err error) {
+	r, err := c.client.Do(API_BASE, "GET", "currencies", "", false)
+	if err != nil {
+		return nil, err
+	}
+	var cnCurrencies = make(map[string]Currency)
+	err = json.Unmarshal(r, &cnCurrencies)
+	if err != nil {
+		return nil, err
+	}
+	for _, currency := range cnCurrencies {
+		currencies = append(currencies, instantswap.Currency{
+			Name:     currency.Name,
+			Symbol:   strings.ToLower(currency.Code),
+			IsFiat:   false,
+			IsStable: false,
+		})
+	}
+	return currencies, nil
+}
+
+func (c *FlypMe) GetCurrenciesToPair(from string) (currencies []instantswap.Currency, err error) {
+	r, err := c.client.Do(API_BASE, "GET", "currencies", "", false)
+	if err != nil {
+		return nil, err
+	}
+	var cnCurrencies = make(map[string]Currency)
+	err = json.Unmarshal(r, &cnCurrencies)
+	if err != nil {
+		return nil, err
+	}
+	for _, currency := range cnCurrencies {
+		if strings.ToLower(from) == strings.ToLower(currency.Code) {
+			continue
+		}
+		currencies = append(currencies, instantswap.Currency{
+			Name:     currency.Name,
+			Symbol:   strings.ToLower(currency.Code),
+			IsFiat:   false,
+			IsStable: false,
+		})
+	}
+	return currencies, nil
+}
+
 // GetExchangeRateInfo get estimate on the amount for the exchange.
 func (c *FlypMe) GetExchangeRateInfo(vars instantswap.ExchangeRateRequest) (res instantswap.ExchangeRateInfo, err error) {
 	limits, err := c.QueryLimits(vars.From, vars.To)

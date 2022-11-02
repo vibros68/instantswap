@@ -43,6 +43,51 @@ func (c *ChangeNow) SetDebug(enable bool) {
 	c.conf.Debug = enable
 }
 
+func (c *ChangeNow) GetCurrencies() (currencies []instantswap.Currency, err error) {
+	r, err := c.client.Do(API_BASE, "GET", "currencies?active=true&fixedRate=true", "", false)
+	if err != nil {
+		return nil, err
+	}
+	var cnCurrencies []Currency
+	err = json.Unmarshal(r, &cnCurrencies)
+	if err != nil {
+		return nil, err
+	}
+	currencies = make([]instantswap.Currency, len(cnCurrencies))
+	for i, currency := range cnCurrencies {
+		currencies[i] = instantswap.Currency{
+			Name:     currency.Name,
+			Symbol:   currency.Ticker,
+			IsFiat:   currency.IsFiat,
+			IsStable: currency.IsStable,
+		}
+	}
+	return currencies, nil
+}
+
+func (c *ChangeNow) GetCurrenciesToPair(from string) (currencies []instantswap.Currency, err error) {
+	r, err := c.client.Do(API_BASE, "GET",
+		fmt.Sprintf("currencies-to/%s?fixedRate=true", strings.ToLower(from)), "", false)
+	if err != nil {
+		return nil, err
+	}
+	var cnCurrencies []Currency
+	err = json.Unmarshal(r, &cnCurrencies)
+	if err != nil {
+		return nil, err
+	}
+	currencies = make([]instantswap.Currency, len(cnCurrencies))
+	for i, currency := range cnCurrencies {
+		currencies[i] = instantswap.Currency{
+			Name:     currency.Name,
+			Symbol:   currency.Ticker,
+			IsFiat:   currency.IsFiat,
+			IsStable: currency.IsStable,
+		}
+	}
+	return currencies, nil
+}
+
 // GetExchangeRateInfo get estimate on the amount for the exchange.
 func (c *ChangeNow) GetExchangeRateInfo(vars instantswap.ExchangeRateRequest) (res instantswap.ExchangeRateInfo, err error) {
 	limits, err := c.QueryLimits(vars.From, vars.To)

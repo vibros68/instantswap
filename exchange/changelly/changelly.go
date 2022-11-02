@@ -52,6 +52,54 @@ func handleErr(r json.RawMessage) (err error) {
 	return nil
 }
 
+func (c *Changelly) GetCurrencies() (currencies []instantswap.Currency, err error) {
+	nonce := strconv.FormatInt(time.Now().Unix(), 10)
+	tmpPayload := jsonRequest{
+		ID:      "queryLimits" + nonce,
+		JSONRPC: "2.0",
+		Method:  "getCurrencies",
+		Params:  struct{}{},
+	}
+
+	payload, err := json.Marshal(tmpPayload)
+	if err != nil {
+		return nil, err
+	}
+	r, err := c.client.Do(API_BASE, "POST", "", string(payload), true)
+	if err != nil {
+		err = errors.New(LIBNAME + ":error: " + err.Error())
+		return
+	}
+	var response jsonResponse
+	if err = json.Unmarshal(r, &response); err != nil {
+		err = errors.New(LIBNAME + ":error: " + err.Error())
+		return
+	}
+	if response.Error != nil {
+		err = handleErr(response.Error)
+		if err != nil {
+			return
+		}
+	}
+	var resCurrencies = []string{}
+	if err = json.Unmarshal(response.Result, &resCurrencies); err != nil {
+		err = errors.New(LIBNAME + ":error: " + err.Error())
+		return
+	}
+	currencies = make([]instantswap.Currency, len(resCurrencies))
+	for i, resCurr := range resCurrencies {
+		currencies[i] = instantswap.Currency{
+			Name:   resCurr,
+			Symbol: resCurr,
+		}
+	}
+	return currencies, err
+}
+
+func (c *Changelly) GetCurrenciesToPair(from string) (currencies []instantswap.Currency, err error) {
+	return
+}
+
 // GetExchangeRateInfo get estimate on the amount for the exchange.
 func (c *Changelly) GetExchangeRateInfo(vars instantswap.ExchangeRateRequest) (res instantswap.ExchangeRateInfo, err error) {
 	limits, err := c.QueryLimits(vars.From, vars.To)
@@ -134,13 +182,6 @@ func (c *Changelly) EstimateAmount(vars instantswap.ExchangeRateRequest) (res in
 
 // QueryRates (list of pairs LTC-BTC, BTC-LTC, etc).
 func (c *Changelly) QueryRates(vars interface{}) (res []instantswap.QueryRate, err error) {
-	//vars not used here
-	err = errors.New(LIBNAME + ":error: not available for this exchange")
-	return
-}
-
-// QueryActiveCurrencies get all active currencies.
-func (c *Changelly) QueryActiveCurrencies(vars interface{}) (res []instantswap.ActiveCurr, err error) {
 	//vars not used here
 	err = errors.New(LIBNAME + ":error: not available for this exchange")
 	return
