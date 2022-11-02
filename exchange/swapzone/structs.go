@@ -42,3 +42,10 @@ type Order struct {
 type Transaction struct {
 	Transaction Order `json:"transaction"`
 }
+
+type Currency struct {
+	Name          string      `json:"name"`
+	Ticker        string      `json:"ticker"`
+	Network       string      `json:"network"`
+	SmartContract interface{} `json:"smartContract"`
+}

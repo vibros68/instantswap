@@ -146,3 +146,20 @@ type MyJsonName struct {
 	} `json:"order"`
 	Status string `json:"status"`
 }
+
+type Currency struct {
+	Code             string `json:"code"`
+	Precision        int    `json:"precision"`
+	DisplayPrecision int    `json:"display_precision"`
+	Name             string `json:"name"`
+	Website          string `json:"website"`
+	ConfirmationTime int    `json:"confirmation_time"`
+	Default          bool   `json:"default"`
+	ChargedFee       string `json:"charged_fee"`
+	CurrencyType     string `json:"currency_type"`
+	Exchange         bool   `json:"exchange"`
+	Send             bool   `json:"send"`
+	Stake            bool   `json:"stake"`
+	NewAddresses     bool   `json:"new_addresses"`
+	Change24H        string `json:"change_24h"`
+}

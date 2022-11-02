@@ -7,6 +7,10 @@ import (
 )
 
 type IDExchange interface {
+	// GetCurrencies returns current active currencies in the exchange
+	GetCurrencies() (currencies []Currency, err error)
+	// GetCurrenciesToPair return a list of available currencies for a specific currency
+	GetCurrenciesToPair(from string) (currencies []Currency, err error)
 	QueryRates(vars interface{}) (res []QueryRate, err error)
 	QueryLimits(fromCurr, toCurr string) (res QueryLimits, err error)
 	CreateOrder(vars CreateOrder) (res CreateResultInfo, err error)

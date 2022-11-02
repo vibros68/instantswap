@@ -45,6 +45,59 @@ func (c *GoDEX) SetDebug(enable bool) {
 	c.conf.Debug = enable
 }
 
+func (c *GoDEX) GetCurrencies() (currencies []instantswap.Currency, err error) {
+	var r []byte
+	r, err = c.client.Do(API_BASE, "GET", "coins", "", false)
+	if err != nil {
+		return nil, err
+	}
+	var fmCurrencies []Currency
+	err = json.Unmarshal(r, &fmCurrencies)
+	if err != nil {
+		return nil, err
+	}
+	currencies = make([]instantswap.Currency, len(fmCurrencies))
+	for i, currency := range fmCurrencies {
+		if currency.Disabled == 0 {
+			currencies[i] = instantswap.Currency{
+				Name:     currency.Name,
+				Symbol:   strings.ToLower(currency.Code),
+				IsFiat:   false,
+				IsStable: false,
+			}
+		}
+	}
+	return
+}
+
+func (c *GoDEX) GetCurrenciesToPair(from string) (currencies []instantswap.Currency, err error) {
+	var r []byte
+	r, err = c.client.Do(API_BASE, "GET", "coins", "", false)
+	if err != nil {
+		return nil, err
+	}
+	var fmCurrencies []Currency
+	err = json.Unmarshal(r, &fmCurrencies)
+	if err != nil {
+		return nil, err
+	}
+	currencies = []instantswap.Currency{}
+	for _, currency := range fmCurrencies {
+		if strings.ToLower(currency.Code) == strings.ToLower(from) {
+			continue
+		}
+		if currency.Disabled == 0 {
+			currencies = append(currencies, instantswap.Currency{
+				Name:     currency.Name,
+				Symbol:   strings.ToLower(currency.Code),
+				IsFiat:   false,
+				IsStable: false,
+			})
+		}
+	}
+	return
+}
+
 func (c *GoDEX) queryRate(req InfoRequest) ([]byte, error) {
 	body, err := json.Marshal(req)
 	if err != nil {

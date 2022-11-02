@@ -2,21 +2,46 @@ package main
 
 import (
 	"code.cryptopower.dev/exchange/instantswap"
+	_ "code.cryptopower.dev/exchange/instantswap/exchange/changelly"
+	_ "code.cryptopower.dev/exchange/instantswap/exchange/changenow"
+	_ "code.cryptopower.dev/exchange/instantswap/exchange/coinswitch"
 	_ "code.cryptopower.dev/exchange/instantswap/exchange/flypme"
+	_ "code.cryptopower.dev/exchange/instantswap/exchange/godex"
+	_ "code.cryptopower.dev/exchange/instantswap/exchange/simpleswap"
+	_ "code.cryptopower.dev/exchange/instantswap/exchange/swapzone"
+	"flag"
 	"fmt"
 	"os"
 )
 
+// using this code:
+// go run ./_example/flypme/ -exchange=swapzone -key=4WRyccNKW
+
+var (
+	exchange, apiKey, apiSecret string
+)
+
+func init() {
+	flag.StringVar(&exchange, "exchange", "flypme", "-exchange=<the exchange you want to trade, default is flypme>")
+	flag.StringVar(&apiKey, "key", "", "-key=<your api key>")
+	flag.StringVar(&apiSecret, "secret", "", "-secret=<your api secret>")
+	flag.Parse()
+}
+
 func main() {
-	exchange, err := instantswap.NewExchange("flypme", instantswap.ExchangeConfig{
+	exchange, err := instantswap.NewExchange(exchange, instantswap.ExchangeConfig{
 		Debug:     false,
-		ApiKey:    "",
-		ApiSecret: "",
+		ApiKey:    apiKey,
+		ApiSecret: apiSecret,
 	})
 	if err != nil {
 		fmt.Println(err)
 		os.Exit(1)
 	}
+	currencies, err := exchange.GetCurrencies()
+	fmt.Println("currencies length: ", len(currencies), err)
+	currencies, err = exchange.GetCurrenciesToPair("btc")
+	fmt.Println("GetCurrenciesToPair length: ", len(currencies), err)
 	res, err := exchange.GetExchangeRateInfo(instantswap.ExchangeRateRequest{
 		From:   "BTC",
 		To:     "DCR",

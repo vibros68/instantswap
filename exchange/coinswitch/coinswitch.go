@@ -5,6 +5,7 @@ import (
 	"code.cryptopower.dev/exchange/instantswap/utils"
 	"encoding/json"
 	"errors"
+	"fmt"
 	"net/http"
 	"strings"
 	"time"
@@ -48,6 +49,52 @@ type CoinSwitch struct {
 // SetDebug set enable/disable http request/response dump.
 func (c *CoinSwitch) SetDebug(enable bool) {
 	c.conf.Debug = enable
+}
+
+func (c *CoinSwitch) GetCurrencies() (currencies []instantswap.Currency, err error) {
+	r, err := c.client.Do(API_BASE, "GET", "coins", "", false)
+	if err != nil {
+		err = errors.New(LIBNAME + ":error: " + err.Error())
+		return
+	}
+	var csCurrencies []Currency
+	err = parseResponseData(r, &csCurrencies)
+	if err != nil {
+		return nil, err
+	}
+	currencies = make([]instantswap.Currency, len(csCurrencies))
+	for i, currency := range csCurrencies {
+		if currency.IsActive {
+			currencies[i] = instantswap.Currency{
+				Name:   currency.Name,
+				Symbol: currency.Symbol,
+			}
+		}
+	}
+	return
+}
+
+func (c *CoinSwitch) GetCurrenciesToPair(from string) (currencies []instantswap.Currency, err error) {
+	r, err := c.client.Do(API_BASE, "GET", fmt.Sprintf("coins/%s/destination-coins", strings.ToLower(from)), "", false)
+	if err != nil {
+		err = errors.New(LIBNAME + ":error: " + err.Error())
+		return
+	}
+	var csCurrencies []Currency
+	err = parseResponseData(r, &csCurrencies)
+	if err != nil {
+		return nil, err
+	}
+	currencies = []instantswap.Currency{}
+	for _, currency := range csCurrencies {
+		if currency.IsActive {
+			currencies = append(currencies, instantswap.Currency{
+				Name:   currency.Name,
+				Symbol: currency.Symbol,
+			})
+		}
+	}
+	return
 }
 
 // GetExchangeRateInfo get estimate on the amount for the exchange.
@@ -115,13 +162,6 @@ func (c *CoinSwitch) EstimateAmount(vars instantswap.ExchangeRateRequest) (res i
 
 // QueryRates (list of pairs LTC-BTC, BTC-LTC, etc).
 func (c *CoinSwitch) QueryRates(vars interface{}) (res []instantswap.QueryRate, err error) {
-	//vars not used here
-	err = errors.New(LIBNAME + ":error: not available for this exchange")
-	return
-}
-
-// QueryActiveCurrencies get all active currencies.
-func (c *CoinSwitch) QueryActiveCurrencies(vars interface{}) (res []instantswap.ActiveCurr, err error) {
 	//vars not used here
 	err = errors.New(LIBNAME + ":error: not available for this exchange")
 	return

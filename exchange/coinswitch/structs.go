@@ -2,6 +2,7 @@ package coinswitch
 
 import (
 	"encoding/json"
+	"fmt"
 )
 
 //base json structure
@@ -43,14 +44,6 @@ type EstimateRequest struct {
 	DepositAmount   float64 `json:"depositCoinAmount"`
 }
 
-//CREATE
-/* type CreateOrder struct {
-	FromCurrency      string  `json:"from"`
-	ToCurrency        string  `json:"to"`
-	ToCurrencyAddress string  `json:"address"`
-	InvoicedAmount    float64 `json:"amount"`            //amount in "from" currency
-	ExtraID           string  `json:"extraID,omitempty"` //optional for some coins
-} */
 type Address struct {
 	Address string `json:"address"`
 	Tag     string `json:"tag"`
@@ -71,8 +64,6 @@ type CreateResult struct {
 	} `json:"exchangeAddress"`
 	OrderID string `json:"orderId"`
 }
-
-//INFO
 
 type UUID struct {
 	UUID   string `json:"id"`
@@ -100,4 +91,21 @@ type EstimateAmount struct {
 	DestinationCoin       string  `json:"destinationCoin"`
 	DestinationCoinAmount float64 `json:"destinationCoinAmount"`
 	OfferReferenceID      string  `json:"offerReferenceId"`
+}
+
+type Currency struct {
+	Symbol   string `json:"symbol"`
+	Name     string `json:"name"`
+	IsActive bool   `json:"isActive"`
+}
+
+func parseResponseData(res []byte, obj interface{}) error {
+	var response jsonResponse
+	if err := json.Unmarshal(res, &response); err != nil {
+		return err
+	}
+	if !response.Success {
+		return fmt.Errorf("%s:error:%s:%s", LIBNAME, response.Code, response.Message)
+	}
+	return json.Unmarshal(response.Result, obj)
 }
