@@ -446,7 +446,7 @@ func GetLocalStatus(status string) instantswap.Status {
 	case "executed":
 		return instantswap.OrderStatusCompleted
 	case "waiting_for_deposit":
-		return instantswap.OrderStatusNew
+		return instantswap.OrderStatusWaitingForDeposit
 	case "deposit_received":
 		return instantswap.OrderStatusDepositReceived
 	case "deposit_confirmed":
