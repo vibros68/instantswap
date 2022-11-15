@@ -1,7 +1,7 @@
 package changelly
 
 import (
-	"code.cryptopower.dev/exchange/instantswap"
+	"code.cryptopower.dev/group/instantswap"
 	"encoding/json"
 	"errors"
 	"fmt"

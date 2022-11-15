@@ -1,14 +1,14 @@
 package main
 
 import (
-	"code.cryptopower.dev/exchange/instantswap"
-	_ "code.cryptopower.dev/exchange/instantswap/exchange/changelly"
-	_ "code.cryptopower.dev/exchange/instantswap/exchange/changenow"
-	_ "code.cryptopower.dev/exchange/instantswap/exchange/coinswitch"
-	_ "code.cryptopower.dev/exchange/instantswap/exchange/flypme"
-	_ "code.cryptopower.dev/exchange/instantswap/exchange/godex"
-	_ "code.cryptopower.dev/exchange/instantswap/exchange/simpleswap"
-	_ "code.cryptopower.dev/exchange/instantswap/exchange/swapzone"
+	"code.cryptopower.dev/group/instantswap"
+	_ "code.cryptopower.dev/group/instantswap/exchange/changelly"
+	_ "code.cryptopower.dev/group/instantswap/exchange/changenow"
+	_ "code.cryptopower.dev/group/instantswap/exchange/coinswitch"
+	_ "code.cryptopower.dev/group/instantswap/exchange/flypme"
+	_ "code.cryptopower.dev/group/instantswap/exchange/godex"
+	_ "code.cryptopower.dev/group/instantswap/exchange/simpleswap"
+	_ "code.cryptopower.dev/group/instantswap/exchange/swapzone"
 	"flag"
 	"fmt"
 	"os"

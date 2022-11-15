@@ -1,8 +1,8 @@
 package coinswitch
 
 import (
-	"code.cryptopower.dev/exchange/instantswap"
-	"code.cryptopower.dev/exchange/instantswap/utils"
+	"code.cryptopower.dev/group/instantswap"
+	"code.cryptopower.dev/group/instantswap/utils"
 	"encoding/json"
 	"errors"
 	"fmt"

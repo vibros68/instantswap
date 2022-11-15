@@ -1,7 +1,7 @@
 package instantswap
 
 import (
-	"code.cryptopower.dev/exchange/instantswap/utils"
+	"code.cryptopower.dev/group/instantswap/utils"
 	"fmt"
 	"io/ioutil"
 	"log"
