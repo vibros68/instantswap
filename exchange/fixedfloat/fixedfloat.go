@@ -1,7 +1,7 @@
 package fixedfloat
 
 import (
-	"code.cryptopower.dev/exchange/instantswap"
+	"code.cryptopower.dev/group/instantswap"
 	"crypto/hmac"
 	"crypto/sha256"
 	"encoding/hex"
