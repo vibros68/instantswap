@@ -33,13 +33,14 @@ type FixedFloat struct {
 // New return FixedFloat client.
 func New(conf instantswap.ExchangeConfig) (*FixedFloat, error) {
 	if conf.ApiKey == "" || conf.ApiSecret == "" {
-		return nil, fmt.Errorf("%s:error: api kay and api secret must be provided", LIBNAME)
+		return nil, fmt.Errorf("%s:error: api key and api secret must be provided", LIBNAME)
 	}
 	client := instantswap.NewClient(LIBNAME, &conf, func(r *http.Request, body string) error {
 		key := []byte(conf.ApiSecret)
 		sig := hmac.New(sha256.New, key)
 		sig.Write([]byte(body))
 		signedMsg := hex.EncodeToString(sig.Sum(nil))
+		fmt.Println(body, signedMsg, conf.ApiKey, conf.ApiSecret)
 		r.Header.Set("X-API-SIGN", signedMsg)
 		r.Header.Set("X-API-KEY", conf.ApiKey)
 		return nil
@@ -50,6 +51,28 @@ func New(conf instantswap.ExchangeConfig) (*FixedFloat, error) {
 // SetDebug set enable/disable http request/response dump
 func (c *FixedFloat) SetDebug(enable bool) {
 	c.conf.Debug = enable
+}
+
+func (c *FixedFloat) GetCurrencies() (currencies []instantswap.Currency, err error) {
+	var r []byte
+	r, err = c.client.Do(API_BASE, http.MethodGet, "getCurrencies", "", false)
+	if err != nil {
+		return nil, err
+	}
+	var ffCurrs []Currency
+	err = parseResponseData(r, &ffCurrs)
+	currencies = make([]instantswap.Currency, len(ffCurrs))
+	for i, ffCurr := range ffCurrs {
+		currencies[i] = instantswap.Currency{
+			Name:   ffCurr.Currency,
+			Symbol: ffCurr.Symbol,
+		}
+	}
+	return currencies, err
+}
+
+func (c *FixedFloat) GetCurrenciesToPair(from string) (currencies []instantswap.Currency, err error) {
+	return nil, err
 }
 
 // GetExchangeRateInfo get estimate on the amount for the exchange.

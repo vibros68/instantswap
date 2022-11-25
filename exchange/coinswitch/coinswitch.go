@@ -215,7 +215,7 @@ func (c *CoinSwitch) CreateOrder(orderInfo instantswap.CreateOrder) (res instant
 		RefundAddress:      refundAddress,
 		DepositCoinAmount:  orderInfo.InvoicedAmount,
 		OfferReferenceID:   orderInfo.Signature,
-		UserReferenceID:    orderInfo.UserReferenceID,
+		UserReferenceID:    c.conf.AffiliateId,
 	}
 	if tmpOrderInfo.DepositCoinAmount == 0.0 {
 		err = errors.New(LIBNAME + ":error:createorder deposit coin amount is 0")
