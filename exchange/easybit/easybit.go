@@ -1,8 +1,8 @@
 package easybit
 
 import (
-	"code.cryptopower.dev/exchange/instantswap"
-	"code.cryptopower.dev/exchange/instantswap/utils"
+	"code.cryptopower.dev/group/instantswap"
+	"code.cryptopower.dev/group/instantswap/utils"
 	"encoding/json"
 	"fmt"
 	"net/http"
@@ -20,7 +20,7 @@ func init() {
 	})
 }
 
-// New return a Changelly api client
+// New return an EasyBit api client
 func New(conf instantswap.ExchangeConfig) (*EasyBit, error) {
 	if conf.ApiKey == "" {
 		err := fmt.Errorf("APIKEY is blank")
@@ -36,7 +36,7 @@ func New(conf instantswap.ExchangeConfig) (*EasyBit, error) {
 	}, nil
 }
 
-// Changelly represent a Changelly client.
+// EasyBit represent a EasyBit client.
 type EasyBit struct {
 	client *instantswap.Client
 	conf   *instantswap.ExchangeConfig
