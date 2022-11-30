@@ -263,10 +263,14 @@ func (c *ChangeNow) OrderInfo(orderID string) (res instantswap.OrderInfoResult, 
 	} else {
 		amountRecv = tmp.AmountReceive
 	}
+	var hash = tmp.PayoutHash
+	if hash == "Internal transfer " {
+		hash = instantswap.TX_HASH_INTERNAL_TRANSFER
+	}
 	res = instantswap.OrderInfoResult{
 		LastUpdate:     tmp.UpdatedAt,
 		ReceiveAmount:  amountRecv,
-		TxID:           tmp.PayoutHash,
+		TxID:           hash,
 		Status:         tmp.Status,
 		InternalStatus: GetLocalStatus(tmp.Status),
 	}
