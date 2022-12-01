@@ -11,7 +11,7 @@ import (
 )
 
 const (
-	API_BASE = "https://changenow.io/api/v1/" // API endpoint
+	API_BASE = "https://api.changenow.io/v1/" // API endpoint
 	LIBNAME  = "changenow"
 )
 
@@ -44,7 +44,7 @@ func (c *ChangeNow) SetDebug(enable bool) {
 }
 
 func (c *ChangeNow) GetCurrencies() (currencies []instantswap.Currency, err error) {
-	r, err := c.client.Do(API_BASE, "GET", "currencies?active=true&fixedRate=true", "", false)
+	r, err := c.client.Do(API_BASE, "GET", "currencies?active=true", "", false)
 	if err != nil {
 		return nil, err
 	}
@@ -67,7 +67,7 @@ func (c *ChangeNow) GetCurrencies() (currencies []instantswap.Currency, err erro
 
 func (c *ChangeNow) GetCurrenciesToPair(from string) (currencies []instantswap.Currency, err error) {
 	r, err := c.client.Do(API_BASE, "GET",
-		fmt.Sprintf("currencies-to/%s?fixedRate=true", strings.ToLower(from)), "", false)
+		fmt.Sprintf("currencies-to/%s", strings.ToLower(from)), "", false)
 	if err != nil {
 		return nil, err
 	}
@@ -267,6 +267,7 @@ func (c *ChangeNow) OrderInfo(orderID string) (res instantswap.OrderInfoResult, 
 	if hash == "Internal transfer " {
 		hash = instantswap.TX_HASH_INTERNAL_TRANSFER
 	}
+
 	res = instantswap.OrderInfoResult{
 		LastUpdate:     tmp.UpdatedAt,
 		ReceiveAmount:  amountRecv,
