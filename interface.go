@@ -27,9 +27,11 @@ type IDExchange interface {
 }
 
 type ExchangeRateRequest struct {
-	From   string
-	To     string
-	Amount float64
+	From        string
+	FromNetwork string
+	To          string
+	ToNetwork   string
+	Amount      float64
 }
 
 var driv = driver{
