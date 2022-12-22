@@ -133,7 +133,7 @@ func (c *Client) Do(apibase, method, resource string, payload string, authNeeded
 	if err != nil {
 		return response, err
 	}
-	if resp.StatusCode != 200 {
+	if resp.StatusCode >= 300 {
 		if resp.StatusCode == http.StatusTooManyRequests {
 			return response, TooManyRequestsError
 		}

@@ -62,13 +62,12 @@ func (c *CoinSwitch) GetCurrencies() (currencies []instantswap.Currency, err err
 	if err != nil {
 		return nil, err
 	}
-	currencies = make([]instantswap.Currency, len(csCurrencies))
-	for i, currency := range csCurrencies {
+	for _, currency := range csCurrencies {
 		if currency.IsActive {
-			currencies[i] = instantswap.Currency{
+			currencies = append(currencies, instantswap.Currency{
 				Name:   currency.Name,
 				Symbol: currency.Symbol,
-			}
+			})
 		}
 	}
 	return
