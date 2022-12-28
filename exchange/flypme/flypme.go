@@ -168,15 +168,13 @@ func (c *FlypMe) QueryRates(vars interface{}) (res []instantswap.QueryRate, err 
 	}
 
 	tmpArr := []instantswap.QueryRate{}
-	var v interface{}
-	if err = json.Unmarshal(r, &v); err != nil {
+	var rateList map[string]string
+	if err = json.Unmarshal(r, &rateList); err != nil {
 		err = errors.New(LIBNAME + ":error: " + err.Error())
 		return
 	}
-	data := v.(map[string]interface{})
-	for k, v := range data {
-		val := (v).(string)
-		tmpQ := instantswap.QueryRate{Name: k, Value: val}
+	for k, v := range rateList {
+		tmpQ := instantswap.QueryRate{Name: k, Value: v}
 		tmpArr = append(tmpArr, tmpQ)
 	}
 	res = tmpArr
