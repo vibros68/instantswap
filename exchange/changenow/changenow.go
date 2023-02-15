@@ -175,7 +175,7 @@ func (c *ChangeNow) QueryActiveCurrencies(vars interface{}) (res []instantswap.A
 
 // QueryLimits Get Exchange Rates (from, to).
 func (c *ChangeNow) QueryLimits(fromCurr, toCurr string) (res instantswap.QueryLimits, err error) {
-	r, err := c.client.Do(API_BASE, "GET", "min-amount/"+fromCurr+"_"+toCurr, "", false)
+	r, err := c.client.Do(API_BASE, "GET", "exchange-range/"+fromCurr+"_"+toCurr, "", false)
 	if err != nil {
 		err = errors.New(LIBNAME + ":error: " + err.Error())
 		return
@@ -186,6 +186,7 @@ func (c *ChangeNow) QueryLimits(fromCurr, toCurr string) (res instantswap.QueryL
 		return
 	}
 	res = instantswap.QueryLimits{
+		Max: tmp.Max,
 		Min: tmp.Min,
 	}
 	return

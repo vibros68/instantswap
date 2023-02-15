@@ -30,7 +30,7 @@ type ActiveCurr struct {
 }
 
 type QueryLimits struct {
-	//Max string `json:"max"`
+	Max float64 `json:"max"`
 	Min float64 `json:"minAmount"`
 }
 
