@@ -51,6 +51,7 @@ type CreateOrder struct {
 
 	//changenow.io
 	ExtraID string `json:"extraId,omitempty"` //changenow.io requirement
+	UserID string `json:"userId,omitempty"` //changenow.io partner requirement
 
 	//evercoin
 	Signature       string `json:"signature,omitempty"` //evercoin requirement
