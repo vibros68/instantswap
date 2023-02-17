@@ -195,7 +195,6 @@ func (c *ChangeNow) QueryLimits(fromCurr, toCurr string) (res instantswap.QueryL
 
 // CreateOrder create an instant exchange order.
 func (c *ChangeNow) CreateOrder(orderInfo instantswap.CreateOrder) (res instantswap.CreateResultInfo, err error) {
-	fmt.Println("CHANGE NOW InvoicedAmount", orderInfo.InvoicedAmount)
 	tmpOrderInfo := CreateOrder{
 		FromCurrency:      orderInfo.FromCurrency,
 		ToCurrency:        orderInfo.ToCurrency,
@@ -204,25 +203,19 @@ func (c *ChangeNow) CreateOrder(orderInfo instantswap.CreateOrder) (res instants
 		InvoicedAmount:    strconv.FormatFloat(orderInfo.InvoicedAmount, 'f', 8, 64),
 		ExtraID:           orderInfo.ExtraID,
 	}
-	// if tmpOrderInfo.InvoicedAmount == 0.0 {
-	// 	err = errors.New(LIBNAME + ":error:createorder invoiced amount is 0")
-	// 	return
-	// }
+
 	payload, err := json.Marshal(tmpOrderInfo)
 	if err != nil {
 		err = errors.New(LIBNAME + ":error: " + err.Error())
 		return
 	}
-	fmt.Println("CHANGE NOW PAYLOAD ", payload)
-	fmt.Println("CHANGE NOW PAYLOAD string", string(payload))
+
 	r, err := c.client.Do(API_BASE, "POST", "transactions/"+c.conf.ApiKey, string(payload), false)
 	if err != nil {
 		err = errors.New(LIBNAME + ":error: " + err.Error())
 		return
 	}
-	fmt.Println("CHANGE NOW R ", string(r))
-	// var tempItem interface{}
-	// err = json.Unmarshal(r, &tempItem)
+
 	var tmp CreateResult
 	if err = json.Unmarshal(r, &tmp); err != nil {
 		err = errors.New(LIBNAME + ":error: " + err.Error())

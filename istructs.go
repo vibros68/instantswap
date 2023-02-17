@@ -6,6 +6,7 @@ type ExchangeConfig struct {
 	ApiSecret string
 	// AffiliateId is used to earn refer coin from transaction
 	AffiliateId string
+	UserId      string
 }
 
 //DECENTRALIZED EXCHANGES
@@ -51,7 +52,7 @@ type CreateOrder struct {
 
 	//changenow.io
 	ExtraID string `json:"extraId,omitempty"` //changenow.io requirement
-	UserID string `json:"userId,omitempty"` //changenow.io partner requirement
+	UserID  string `json:"userId,omitempty"`  //changenow.io partner requirement
 
 	//evercoin
 	Signature       string `json:"signature,omitempty"` //evercoin requirement
