@@ -1,13 +1,14 @@
 package changenow
 
 import (
-	"code.cryptopower.dev/group/instantswap"
 	"encoding/json"
 	"errors"
 	"fmt"
 	"strconv"
 	"strings"
 	"time"
+
+	"code.cryptopower.dev/group/instantswap"
 )
 
 const (
@@ -175,7 +176,7 @@ func (c *ChangeNow) QueryActiveCurrencies(vars interface{}) (res []instantswap.A
 
 // QueryLimits Get Exchange Rates (from, to).
 func (c *ChangeNow) QueryLimits(fromCurr, toCurr string) (res instantswap.QueryLimits, err error) {
-	r, err := c.client.Do(API_BASE, "GET", "min-amount/"+fromCurr+"_"+toCurr, "", false)
+	r, err := c.client.Do(API_BASE, "GET", "exchange-range/"+fromCurr+"_"+toCurr, "", false)
 	if err != nil {
 		err = errors.New(LIBNAME + ":error: " + err.Error())
 		return
@@ -186,6 +187,7 @@ func (c *ChangeNow) QueryLimits(fromCurr, toCurr string) (res instantswap.QueryL
 		return
 	}
 	res = instantswap.QueryLimits{
+		Max: tmp.Max,
 		Min: tmp.Min,
 	}
 	return
@@ -197,25 +199,23 @@ func (c *ChangeNow) CreateOrder(orderInfo instantswap.CreateOrder) (res instants
 		FromCurrency:      orderInfo.FromCurrency,
 		ToCurrency:        orderInfo.ToCurrency,
 		ToCurrencyAddress: orderInfo.Destination,
-		InvoicedAmount:    orderInfo.InvoicedAmount,
+		RefundAddress:     orderInfo.RefundAddress,
+		InvoicedAmount:    strconv.FormatFloat(orderInfo.InvoicedAmount, 'f', 8, 64),
 		ExtraID:           orderInfo.ExtraID,
 	}
-	if tmpOrderInfo.InvoicedAmount == 0.0 {
-		err = errors.New(LIBNAME + ":error:createorder invoiced amount is 0")
-		return
-	}
+
 	payload, err := json.Marshal(tmpOrderInfo)
 	if err != nil {
 		err = errors.New(LIBNAME + ":error: " + err.Error())
 		return
 	}
+
 	r, err := c.client.Do(API_BASE, "POST", "transactions/"+c.conf.ApiKey, string(payload), false)
 	if err != nil {
 		err = errors.New(LIBNAME + ":error: " + err.Error())
 		return
 	}
-	var tempItem interface{}
-	err = json.Unmarshal(r, &tempItem)
+
 	var tmp CreateResult
 	if err = json.Unmarshal(r, &tmp); err != nil {
 		err = errors.New(LIBNAME + ":error: " + err.Error())
@@ -227,6 +227,8 @@ func (c *ChangeNow) CreateOrder(orderInfo instantswap.CreateOrder) (res instants
 		Destination:    tmp.DestinationAddress,
 		ExtraID:        tmp.PayinExtraID,
 		FromCurrency:   tmp.FromCurrency,
+		InvoicedAmount: orderInfo.InvoicedAmount, // amount you send
+		OrderedAmount:  tmp.InvoicedAmount,       // amount you get
 		ToCurrency:     tmp.ToCurrency,
 		DepositAddress: tmp.DepositAddress,
 	}

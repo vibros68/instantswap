@@ -30,25 +30,28 @@ type ActiveCurr struct {
 }
 
 type QueryLimits struct {
-	//Max string `json:"max"`
+	Max float64 `json:"maxAmount"`
 	Min float64 `json:"minAmount"`
 }
 
 //CREATE
 type CreateOrder struct {
-	FromCurrency      string  `json:"from"`
-	ToCurrency        string  `json:"to"`
-	ToCurrencyAddress string  `json:"address"`
-	InvoicedAmount    float64 `json:"amount"`            //amount in "from" currency
-	ExtraID           string  `json:"extraID,omitempty"` //optional for some coins
+	FromCurrency      string `json:"from"`
+	ToCurrency        string `json:"to"`
+	ToCurrencyAddress string `json:"address"`
+	RefundAddress     string `json:"refundAddress"`
+	InvoicedAmount    string `json:"amount"`            //amount in "from" currency
+	ExtraID           string `json:"extraID,omitempty"` //optional for some coins
 }
+
 type CreateResult struct {
-	UUID               string `json:"id"`
-	DepositAddress     string `json:"payinAddress"`
-	DestinationAddress string `json:"payoutAddress"`
-	PayinExtraID       string `json:"payinExtraId"`
-	FromCurrency       string `json:"fromCurrency"`
-	ToCurrency         string `json:"toCurrency"`
+	UUID               string  `json:"id"`
+	DepositAddress     string  `json:"payinAddress"`
+	DestinationAddress string  `json:"payoutAddress"`
+	PayinExtraID       string  `json:"payinExtraId"`
+	FromCurrency       string  `json:"fromCurrency"`
+	InvoicedAmount     float64 `json:"amount"`
+	ToCurrency         string  `json:"toCurrency"`
 }
 
 //INFO
