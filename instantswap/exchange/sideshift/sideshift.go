@@ -6,8 +6,8 @@ import (
 	"net/http"
 	"strings"
 
-	"code.cryptopower.dev/group/instantswap/instantswap"
-	"code.cryptopower.dev/group/instantswap/instantswap/utils"
+	"gitlab.com/cryptopower/instantswap/instantswap"
+	"gitlab.com/cryptopower/instantswap/instantswap/utils"
 )
 
 const (

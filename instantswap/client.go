@@ -1,7 +1,6 @@
 package instantswap
 
 import (
-	"code.cryptopower.dev/group/instantswap/instantswap/utils"
 	"fmt"
 	"io/ioutil"
 	"log"
@@ -9,6 +8,8 @@ import (
 	"net/http/httputil"
 	"strings"
 	"time"
+
+	"gitlab.com/cryptopower/instantswap/instantswap/utils"
 )
 
 const (
@@ -89,7 +90,7 @@ func (c Client) dumpResponse(r *http.Response) {
 	}
 }
 
-//Do do prepare and process HTTP request to API
+// Do do prepare and process HTTP request to API
 func (c *Client) Do(apibase, method, resource string, payload string, authNeeded bool) (response []byte, err error) {
 	var connectTimer = time.NewTimer(defaultHttpClientTimeout * time.Second)
 	var rawurl string

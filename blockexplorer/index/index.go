@@ -1,11 +1,11 @@
 package index
 
 import (
-	_ "code.cryptopower.dev/group/instantswap/blockexplorer/aptexplorer"
-	_ "code.cryptopower.dev/group/instantswap/blockexplorer/blockchair"
-	_ "code.cryptopower.dev/group/instantswap/blockexplorer/blockcypher"
-	_ "code.cryptopower.dev/group/instantswap/blockexplorer/btcexplorer"
-	_ "code.cryptopower.dev/group/instantswap/blockexplorer/dcrexplorer"
-	_ "code.cryptopower.dev/group/instantswap/blockexplorer/ethplorer"
-	_ "code.cryptopower.dev/group/instantswap/blockexplorer/xmrexplorer"
+	_ "gitlab.com/cryptopower/instantswap/blockexplorer/aptexplorer"
+	_ "gitlab.com/cryptopower/instantswap/blockexplorer/blockchair"
+	_ "gitlab.com/cryptopower/instantswap/blockexplorer/blockcypher"
+	_ "gitlab.com/cryptopower/instantswap/blockexplorer/btcexplorer"
+	_ "gitlab.com/cryptopower/instantswap/blockexplorer/dcrexplorer"
+	_ "gitlab.com/cryptopower/instantswap/blockexplorer/ethplorer"
+	_ "gitlab.com/cryptopower/instantswap/blockexplorer/xmrexplorer"
 )

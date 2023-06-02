@@ -5,10 +5,10 @@ import (
 	"errors"
 	"fmt"
 
-	"code.cryptopower.dev/group/instantswap/blockexplorer"
-	"code.cryptopower.dev/group/instantswap/blockexplorer/global/interfaces/idaemon"
+	"gitlab.com/cryptopower/instantswap/blockexplorer"
+	"gitlab.com/cryptopower/instantswap/blockexplorer/global/interfaces/idaemon"
 
-	"code.cryptopower.dev/group/instantswap/blockexplorer/global/clients/blockexplorerclient"
+	"gitlab.com/cryptopower/instantswap/blockexplorer/global/clients/blockexplorerclient"
 )
 
 func init() {

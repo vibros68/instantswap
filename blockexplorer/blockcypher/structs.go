@@ -4,8 +4,8 @@ import (
 	"fmt"
 	"time"
 
-	"code.cryptopower.dev/group/instantswap/blockexplorer"
-	"code.cryptopower.dev/group/instantswap/blockexplorer/global/interfaces/idaemon"
+	"gitlab.com/cryptopower/instantswap/blockexplorer"
+	"gitlab.com/cryptopower/instantswap/blockexplorer/global/interfaces/idaemon"
 )
 
 type Err struct {

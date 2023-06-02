@@ -3,8 +3,8 @@ package xmrexplorer
 import (
 	"fmt"
 
-	"code.cryptopower.dev/group/instantswap/blockexplorer"
-	"code.cryptopower.dev/group/instantswap/blockexplorer/global/clients/blockexplorerclient"
+	"gitlab.com/cryptopower/instantswap/blockexplorer"
+	"gitlab.com/cryptopower/instantswap/blockexplorer/global/clients/blockexplorerclient"
 )
 
 const (

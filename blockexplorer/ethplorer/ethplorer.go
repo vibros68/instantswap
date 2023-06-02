@@ -6,9 +6,9 @@ import (
 	"net/http"
 	"strings"
 
-	"code.cryptopower.dev/group/instantswap/blockexplorer"
-	"code.cryptopower.dev/group/instantswap/blockexplorer/global/clients/blockexplorerclient"
-	"code.cryptopower.dev/group/instantswap/blockexplorer/global/interfaces/idaemon"
+	"gitlab.com/cryptopower/instantswap/blockexplorer"
+	"gitlab.com/cryptopower/instantswap/blockexplorer/global/clients/blockexplorerclient"
+	"gitlab.com/cryptopower/instantswap/blockexplorer/global/interfaces/idaemon"
 )
 
 const (
