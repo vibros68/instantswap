@@ -1,13 +1,14 @@
 package changelly
 
 import (
-	"code.cryptopower.dev/group/instantswap/instantswap"
 	"encoding/json"
 	"errors"
 	"fmt"
 	"strconv"
 	"strings"
 	"time"
+
+	"gitlab.com/cryptopower/instantswap/instantswap"
 )
 
 const (

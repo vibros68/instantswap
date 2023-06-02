@@ -1,3 +1,3 @@
-module code.cryptopower.dev/group/instantswap
+module gitlab.com/cryptopower/instantswap
 
 go 1.18

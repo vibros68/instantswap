@@ -1,8 +1,8 @@
 package zecexplorer
 
 import (
-	"code.cryptopower.dev/group/instantswap/blockexplorer"
-	"code.cryptopower.dev/group/instantswap/blockexplorer/global/interfaces/idaemon"
+	"gitlab.com/cryptopower/instantswap/blockexplorer"
+	"gitlab.com/cryptopower/instantswap/blockexplorer/global/interfaces/idaemon"
 )
 
 type Transaction struct {

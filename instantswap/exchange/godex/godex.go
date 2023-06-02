@@ -1,13 +1,14 @@
 package godex
 
 import (
-	"code.cryptopower.dev/group/instantswap/instantswap"
-	"code.cryptopower.dev/group/instantswap/instantswap/utils"
 	"encoding/json"
 	"fmt"
 	"net/http"
 	"strings"
 	"time"
+
+	"gitlab.com/cryptopower/instantswap/instantswap"
+	"gitlab.com/cryptopower/instantswap/instantswap/utils"
 )
 
 const (
@@ -40,7 +41,7 @@ func New(conf instantswap.ExchangeConfig) (*GoDEX, error) {
 	return &GoDEX{client: client, conf: &conf}, nil
 }
 
-//SetDebug set enable/disable http request/response dump
+// SetDebug set enable/disable http request/response dump
 func (c *GoDEX) SetDebug(enable bool) {
 	c.conf.Debug = enable
 }
@@ -201,7 +202,7 @@ func (c *GoDEX) CreateOrder(vars instantswap.CreateOrder) (res instantswap.Creat
 	}, err
 }
 
-//UpdateOrder accepts orderID value and more if needed per lib.
+// UpdateOrder accepts orderID value and more if needed per lib.
 func (c *GoDEX) UpdateOrder(vars interface{}) (res instantswap.UpdateOrderResultInfo, err error) {
 	return
 }
@@ -209,7 +210,7 @@ func (c *GoDEX) CancelOrder(orderID string) (res string, err error) {
 	return
 }
 
-//OrderInfo accepts orderID value and more if needed per lib.
+// OrderInfo accepts orderID value and more if needed per lib.
 func (c *GoDEX) OrderInfo(orderID string) (res instantswap.OrderInfoResult, err error) {
 	var r []byte
 	r, err = c.client.Do(API_BASE, "GET", fmt.Sprintf("transaction/%s", orderID), "", false)
@@ -235,7 +236,7 @@ func (c *GoDEX) EstimateAmount(vars interface{}) (res instantswap.EstimateAmount
 	return
 }
 
-//GetLocalStatus translate local status to instantswap.Status.
+// GetLocalStatus translate local status to instantswap.Status.
 func GetLocalStatus(status string) instantswap.Status {
 	// closed, confirming, exchanging, expired, failed, finished, refunded, sending, verifying, waiting
 	status = strings.ToLower(status)

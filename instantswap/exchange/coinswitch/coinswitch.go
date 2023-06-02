@@ -1,14 +1,15 @@
 package coinswitch
 
 import (
-	"code.cryptopower.dev/group/instantswap/instantswap"
-	"code.cryptopower.dev/group/instantswap/instantswap/utils"
 	"encoding/json"
 	"errors"
 	"fmt"
 	"net/http"
 	"strings"
 	"time"
+
+	"gitlab.com/cryptopower/instantswap/instantswap"
+	"gitlab.com/cryptopower/instantswap/instantswap/utils"
 )
 
 const (

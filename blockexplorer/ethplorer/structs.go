@@ -4,7 +4,7 @@ import (
 	"fmt"
 	"strings"
 
-	"code.cryptopower.dev/group/instantswap/blockexplorer"
+	"gitlab.com/cryptopower/instantswap/blockexplorer"
 )
 
 type Tx struct {

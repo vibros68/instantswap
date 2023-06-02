@@ -4,9 +4,9 @@ import (
 	"encoding/json"
 	"strings"
 
-	"code.cryptopower.dev/group/instantswap/blockexplorer"
-	"code.cryptopower.dev/group/instantswap/blockexplorer/global/interfaces/idaemon"
-	"code.cryptopower.dev/group/instantswap/blockexplorer/global/utils"
+	"gitlab.com/cryptopower/instantswap/blockexplorer"
+	"gitlab.com/cryptopower/instantswap/blockexplorer/global/interfaces/idaemon"
+	"gitlab.com/cryptopower/instantswap/blockexplorer/global/utils"
 )
 
 func parseResponseData(r []byte, obj interface{}) error {
