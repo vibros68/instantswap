@@ -5,7 +5,7 @@ import (
 	"fmt"
 )
 
-//base json structure
+// base json structure
 type jsonResponse struct {
 	Code    string          `json:"code"`
 	Message string          `json:"msg"`

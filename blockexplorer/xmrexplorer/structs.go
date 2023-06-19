@@ -1,8 +1,8 @@
 package xmrexplorer
 
 import (
-	"gitlab.com/cryptopower/instantswap/blockexplorer"
-	"gitlab.com/cryptopower/instantswap/blockexplorer/global/interfaces/idaemon"
+	"github.com/crypto-power/instantswap/blockexplorer"
+	"github.com/crypto-power/instantswap/blockexplorer/global/interfaces/idaemon"
 )
 
 const XMR_EXTRA_UNIT = 10000

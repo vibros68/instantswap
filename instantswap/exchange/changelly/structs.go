@@ -4,7 +4,7 @@ import (
 	"encoding/json"
 )
 
-//base json structure
+// base json structure
 type jsonRequest struct {
 	ID      string      `json:"id"`
 	JSONRPC string      `json:"jsonrpc"`
@@ -45,7 +45,7 @@ type QueryLimits struct {
 	Min float64 `json:"minAmount"`
 }
 
-//CREATE
+// CREATE
 type CreateOrder struct {
 	FromCurrency      string  `json:"from"`
 	ToCurrency        string  `json:"to"`

@@ -8,8 +8,8 @@ import (
 	"strings"
 	"time"
 
-	"gitlab.com/cryptopower/instantswap/instantswap"
-	"gitlab.com/cryptopower/instantswap/instantswap/utils"
+	"github.com/crypto-power/instantswap/instantswap"
+	"github.com/crypto-power/instantswap/instantswap/utils"
 )
 
 const (

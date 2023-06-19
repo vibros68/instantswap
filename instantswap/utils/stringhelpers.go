@@ -5,7 +5,7 @@ import (
 	"strings"
 )
 
-//GetStringBefore returns string before x string value
+// GetStringBefore returns string before x string value
 func GetStringBefore(value string, a string) string {
 	// Get substring before a string.
 	pos := strings.Index(value, a)

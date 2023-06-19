@@ -8,7 +8,7 @@ import (
 	"strings"
 	"time"
 
-	"gitlab.com/cryptopower/instantswap/instantswap"
+	"github.com/crypto-power/instantswap/instantswap"
 )
 
 const (

@@ -42,7 +42,7 @@ type OrderStatusResponse struct {
 	Error           string  `json:"error"`
 }
 
-//CREATE
+// CREATE
 type CreateOrder struct {
 	Pair              string  `json:"pair"` //from_to format
 	ToCurrencyAddress string  `json:"withdrawal"`

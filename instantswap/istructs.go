@@ -41,7 +41,7 @@ type QueryLimits struct {
 	Min float64 `json:"min,string"`
 }
 
-//CREATE
+// CREATE
 type CreateOrder struct {
 	RefundAddress  string  `json:"refund_address"`
 	Destination    string  `json:"destination"`
@@ -81,7 +81,7 @@ type CreateResult struct {
 	Order   CreateResultInfo `json:"order"`
 }
 
-//UPDATE
+// UPDATE
 type UpdateOrderInfo struct {
 	Destination   string  `json:"destination"`
 	OrderedAmount float64 `json:"ordered_amount,string"`
