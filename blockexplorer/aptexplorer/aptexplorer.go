@@ -4,10 +4,10 @@ import (
 	"fmt"
 	"strings"
 
-	"gitlab.com/cryptopower/instantswap/blockexplorer"
-	"gitlab.com/cryptopower/instantswap/blockexplorer/global/clients/blockexplorerclient"
-	"gitlab.com/cryptopower/instantswap/blockexplorer/global/interfaces/idaemon"
-	"gitlab.com/cryptopower/instantswap/blockexplorer/global/utils"
+	"github.com/crypto-power/instantswap/blockexplorer"
+	"github.com/crypto-power/instantswap/blockexplorer/global/clients/blockexplorerclient"
+	"github.com/crypto-power/instantswap/blockexplorer/global/interfaces/idaemon"
+	"github.com/crypto-power/instantswap/blockexplorer/global/utils"
 )
 
 const (

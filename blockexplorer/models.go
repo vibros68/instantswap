@@ -1,6 +1,6 @@
 package blockexplorer
 
-import "gitlab.com/cryptopower/instantswap/blockexplorer/global/interfaces/idaemon"
+import "github.com/crypto-power/instantswap/blockexplorer/global/interfaces/idaemon"
 
 type IVIN struct {
 	Script   string `json:"script"`

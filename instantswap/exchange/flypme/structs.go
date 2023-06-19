@@ -4,7 +4,7 @@ import (
 	"encoding/json"
 )
 
-//base json structure
+// base json structure
 type jsonResponse struct {
 	Errors json.RawMessage `json:"errors"`
 	Result string          `json:"result"`
@@ -42,7 +42,7 @@ type QueryLimits struct {
 	Min float64 `json:"min,string"`
 }
 
-//CREATE
+// CREATE
 type CreateOrderInfo struct {
 	RefundAddress  string `json:"refund_address"`
 	Destination    string `json:"destination"`
@@ -70,7 +70,7 @@ type CreateResult struct {
 	Order   CreateResultInfo `json:"order"`
 }
 
-//UPDATE
+// UPDATE
 type UpdateOrderInfo struct {
 	Destination   string  `json:"destination"`
 	OrderedAmount float64 `json:"ordered_amount,string"`
@@ -113,7 +113,7 @@ type AcceptOrderResult struct {
 	Order          AcceptOrderResultInfo `json:"order"`
 }
 
-//INFO
+// INFO
 type OrderInfoResultInfo struct {
 	ChargedFee     float64 `json:"charged_fee,string"`
 	Destination    string  `json:"destination"`

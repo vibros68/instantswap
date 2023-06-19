@@ -4,7 +4,7 @@ import (
 	"encoding/json"
 )
 
-//base json structure
+// base json structure
 type jsonResponse struct {
 	Errors json.RawMessage `json:"errors"`
 	Result string          `json:"result"`
@@ -34,7 +34,7 @@ type QueryLimits struct {
 	Min float64 `json:"minAmount"`
 }
 
-//CREATE
+// CREATE
 type CreateOrder struct {
 	FromCurrency      string `json:"from"`
 	ToCurrency        string `json:"to"`

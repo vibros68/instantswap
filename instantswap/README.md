@@ -8,7 +8,7 @@ It uses some instant exchanges api to do trading.
 First, use go get to install the latest version of the library.
 
 ```
-go get gitlab.com/cryptopower/instantswap
+go get github.com/crypto-power/instantswap
 ```
 
 Next, include instantswap in your application and load more exchange to trade:
@@ -16,8 +16,8 @@ In the bellow example. I am loading [flyp.me](https://flyp.me/)
 
 ```
 import (
-    "gitlab.com/cryptopower/instantswap"
-    _ "gitlab.com/cryptopower/instantswap/exchange/flypme"
+    "github.com/crypto-power/instantswap"
+    _ "github.com/crypto-power/instantswap/exchange/flypme"
 )
 ```
 Now we are supporting exchanges: [changelly](https://changelly.com/), [changenow](https://changenow.io/), 

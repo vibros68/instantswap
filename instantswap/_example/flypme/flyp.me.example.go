@@ -5,14 +5,14 @@ import (
 	"fmt"
 	"os"
 
-	_ "gitlab.com/cryptopower/instantswap/exchange/changelly"
-	_ "gitlab.com/cryptopower/instantswap/exchange/changenow"
-	_ "gitlab.com/cryptopower/instantswap/exchange/coinswitch"
-	_ "gitlab.com/cryptopower/instantswap/exchange/flypme"
-	_ "gitlab.com/cryptopower/instantswap/exchange/godex"
-	_ "gitlab.com/cryptopower/instantswap/exchange/simpleswap"
-	_ "gitlab.com/cryptopower/instantswap/exchange/swapzone"
-	"gitlab.com/cryptopower/instantswap/instantswap"
+	_ "github.com/crypto-power/instantswap/exchange/changelly"
+	_ "github.com/crypto-power/instantswap/exchange/changenow"
+	_ "github.com/crypto-power/instantswap/exchange/coinswitch"
+	_ "github.com/crypto-power/instantswap/exchange/flypme"
+	_ "github.com/crypto-power/instantswap/exchange/godex"
+	_ "github.com/crypto-power/instantswap/exchange/simpleswap"
+	_ "github.com/crypto-power/instantswap/exchange/swapzone"
+	"github.com/crypto-power/instantswap/instantswap"
 )
 
 // using this code:

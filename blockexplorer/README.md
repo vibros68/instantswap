@@ -8,11 +8,11 @@ Note: take a look at the "private repo notes" at the bottom of this file before 
 
 To use this module, cd to your project and run the following command:
 
-`go get gitlab.com/cryptopower/instantswap/blockexplorer`
+`go get github.com/crypto-power/instantswap/blockexplorer`
 
 import the module in the file(s) needing the module:
 
-`import "gitlab.com/cryptopower/instantswap/blockexplorer"`
+`import "github.com/crypto-power/instantswap/blockexplorer"`
 
 instantiate a new blockexplorer:
 

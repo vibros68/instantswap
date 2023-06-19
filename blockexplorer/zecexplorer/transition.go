@@ -1,8 +1,8 @@
 package zecexplorer
 
 import (
-	"gitlab.com/cryptopower/instantswap/blockexplorer"
-	"gitlab.com/cryptopower/instantswap/blockexplorer/global/interfaces/idaemon"
+	"github.com/crypto-power/instantswap/blockexplorer"
+	"github.com/crypto-power/instantswap/blockexplorer/global/interfaces/idaemon"
 )
 
 func (t *Transaction) valueZat() int {

@@ -9,8 +9,8 @@ import (
 	"strings"
 	"time"
 
-	"gitlab.com/cryptopower/instantswap/blockexplorer/global/errors"
-	"gitlab.com/cryptopower/instantswap/blockexplorer/global/utils"
+	"github.com/crypto-power/instantswap/blockexplorer/global/errors"
+	"github.com/crypto-power/instantswap/blockexplorer/global/utils"
 )
 
 const (
