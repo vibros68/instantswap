@@ -123,10 +123,10 @@ type TxEvent struct {
 }
 
 type TxPayload struct {
-	Function      string   `json:"function"`
-	TypeArguments []string `json:"type_arguments"`
-	Arguments     []string `json:"arguments"`
-	Type          string   `json:"type"`
+	Function      string        `json:"function"`
+	TypeArguments []string      `json:"type_arguments"`
+	Arguments     []interface{} `json:"arguments"`
+	Type          string        `json:"type"`
 }
 
 type Blockchain struct {
