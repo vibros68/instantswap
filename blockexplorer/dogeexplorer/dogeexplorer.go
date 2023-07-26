@@ -105,10 +105,10 @@ func (d *dogeExplorer) VerifyTransaction(verifier blockexplorer.TxVerifyRequest)
 			tx.OrderedAmount = orderedAmount
 			tx.BlockExplorerAmount = output.Value
 			tx.MissingAmount = orderedAmount - output.Value
-			tx.MissingPercent = tx.MissingAmount.ToCoin() / orderedAmount.ToCoin()
+			tx.MissingPercent = (tx.MissingAmount.ToCoin() / orderedAmount.ToCoin()) * 100
 		}
 	}
-	return nil, err
+	return tx, err
 }
 
 // PushTx pushes a raw tx hash
