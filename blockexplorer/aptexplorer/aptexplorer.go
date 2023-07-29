@@ -1,7 +1,9 @@
 package aptexplorer
 
 import (
+	"bytes"
 	"fmt"
+	"net/http"
 	"strings"
 
 	"github.com/crypto-power/instantswap/blockexplorer"
@@ -34,6 +36,12 @@ func New(config blockexplorer.Config) *aptExplorer {
 	return &aptExplorer{client: client, conf: config}
 }
 
+func (e *aptExplorer) VerifyByAddress(req blockexplorer.AddressVerifyRequest) (vr *blockexplorer.VerifyResult, err error) {
+	txs, err := e.getTxsForAddress(req.Address, 25, "")
+	fmt.Println(txs)
+	return
+}
+
 func (e *aptExplorer) blockchainInfo() (*Blockchain, error) {
 	r, err := e.client.Do("GET", "", "", false)
 	if err != nil {
@@ -46,6 +54,19 @@ func (e *aptExplorer) blockchainInfo() (*Blockchain, error) {
 
 func (e *aptExplorer) getTxByHash(hash string) (*Transaction, error) {
 	r, err := e.client.Do("GET", fmt.Sprintf("transactions/by_hash/%s", hash), "", false)
+	if err != nil {
+		return nil, err
+	}
+	var aptTx Transaction
+	err = parseResponseData(r, &aptTx)
+	if err != nil {
+		return nil, err
+	}
+	return &aptTx, err
+}
+
+func (e *aptExplorer) getTxByVersion(version string) (*Transaction, error) {
+	r, err := e.client.Do("GET", fmt.Sprintf("transactions/by_version/%s", version), "", false)
 	if err != nil {
 		return nil, err
 	}
@@ -100,6 +121,38 @@ func (e *aptExplorer) GetTransaction(txId string) (tx *blockexplorer.ITransactio
 func (e *aptExplorer) GetTxsForAddress(address string, limit int, viewKey string) (tx *blockexplorer.IRawAddrResponse, err error) {
 	//r, err := e.client.Do("GET", fmt.Sprintf("accounts/%s/resources", address), "", false)
 	return nil, fmt.Errorf("%s:not supported", LIBNAME)
+}
+
+func (e *aptExplorer) getTxsForAddress(address string, limit int, viewKey string) ([]*Transaction, error) {
+	query := fmt.Sprintf(`{
+	"operationName":"AccountTransactionsData",
+	"variables":{"address":"%s","limit":%d,"offset":0},
+	"query":"query AccountTransactionsData($address: String, $limit: Int, $offset: Int) {\n  address_version_from_move_resources(\n    where: {address: {_eq: $address}}\n    order_by: {transaction_version: desc}\n    limit: $limit\n    offset: $offset\n  ) {\n    transaction_version\n    __typename\n  }\n}"}`,
+		address, limit)
+	r, err := http.NewRequest("POST", "https://indexer.mainnet.aptoslabs.com/v1/graphql", bytes.NewBuffer([]byte(query)))
+	if err != nil {
+		return nil, err
+	}
+	client := &http.Client{}
+	res, err := client.Do(r)
+	if err != nil {
+		return nil, err
+	}
+	var obj struct {
+		AddressVersionFromMoveResources []TxVersionResponse `json:"address_version_from_move_resources"`
+	}
+	err = parseDgraph(res.Body, &obj)
+	if err != nil {
+		return nil, err
+	}
+	var txs []*Transaction
+	for _, txVer := range obj.AddressVersionFromMoveResources {
+		aptTx, err := e.getTxByVersion(fmt.Sprintf("%d", txVer.TransactionVersion))
+		if err == nil {
+			txs = append(txs, aptTx)
+		}
+	}
+	return txs, nil
 }
 
 func (e *aptExplorer) VerifyTransaction(verifier blockexplorer.TxVerifyRequest) (tx *blockexplorer.ITransaction, err error) {

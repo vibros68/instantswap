@@ -2,6 +2,8 @@ package aptexplorer
 
 import (
 	"encoding/json"
+	"fmt"
+	"io"
 	"strings"
 
 	"github.com/crypto-power/instantswap/blockexplorer"
@@ -11,29 +13,6 @@ import (
 
 func parseResponseData(r []byte, obj interface{}) error {
 	return json.Unmarshal(r, obj)
-}
-
-type T struct {
-	Type string `json:"type"`
-	Data struct {
-		Coin struct {
-			Value string `json:"value"`
-		} `json:"coin"`
-		DepositEvents struct {
-			Counter string `json:"counter"`
-			Guid    struct {
-				Id struct {
-					Addr        string `json:"addr"`
-					CreationNum string `json:"creation_num"`
-				} `json:"id"`
-			} `json:"guid"`
-		} `json:"deposit_events"`
-		Frozen         bool `json:"frozen"`
-		WithdrawEvents struct {
-			Counter string    `json:"counter"`
-			Guid    EventGuid `json:"guid"`
-		} `json:"withdraw_events"`
-	} `json:"data"`
 }
 
 type EventGuid struct {
@@ -189,4 +168,34 @@ func getTypeName(t string) string {
 		return tPiece[2]
 	}
 	return ""
+}
+
+type graphqlRes struct {
+	Data   json.RawMessage `json:"data"`
+	Errors []GraphError    `json:"errors"`
+}
+
+type GraphError struct {
+	Extensions struct {
+		Code string `json:"code"`
+		Path string `json:"path"`
+	} `json:"extensions"`
+	Message string `json:"message"`
+}
+
+type TxVersionResponse struct {
+	TransactionVersion int    `json:"transaction_version"`
+	Typename           string `json:"__typename"`
+}
+
+func parseDgraph(res io.Reader, obj interface{}) error {
+	var dgraphRes graphqlRes
+	err := json.NewDecoder(res).Decode(&dgraphRes)
+	if err != nil {
+		return err
+	}
+	if len(dgraphRes.Errors) > 0 {
+		return fmt.Errorf(dgraphRes.Errors[0].Message)
+	}
+	return json.Unmarshal(dgraphRes.Data, obj)
 }

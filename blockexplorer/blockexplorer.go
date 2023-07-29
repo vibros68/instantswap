@@ -80,6 +80,7 @@ type IBlockExplorer interface {
 	GetTxsForAddress(address string, limit int, viewKey string) (tx *IRawAddrResponse, err error)
 	//VerifyTransaction verifies transaction based on values passed in
 	VerifyTransaction(verifier TxVerifyRequest) (tx *ITransaction, err error)
+	VerifyByAddress(req AddressVerifyRequest) (vr *VerifyResult, err error)
 	//PushTx pushes a raw tx hash
 	PushTx(rawTxHash string) (result string, err error)
 }
@@ -92,4 +93,20 @@ type TxVerifyRequest struct {
 	Confirms  int
 	// ViewKey is used for verify monero Tx. It is corresponding with wallet address
 	ViewKey string
+}
+
+type AddressVerifyRequest struct {
+	Address string
+	Amount  float64
+	ViewKey string
+	Confirm int
+}
+
+type VerifyResult struct {
+	Seen                bool    `json:"seen"` //tx has been seen on block explorer but not verified
+	Verified            bool    `json:"verified"`
+	OrderedAmount       float64 `json:"ordered_amount"`
+	BlockExplorerAmount float64 `json:"block_explorer_amount"`
+	MissingAmount       float64 `json:"missing_amount"`
+	MissingPercent      float64 `json:"missing_percent"`
 }
