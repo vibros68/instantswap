@@ -9,7 +9,6 @@ import (
 	"github.com/crypto-power/instantswap/blockexplorer"
 	"github.com/crypto-power/instantswap/blockexplorer/global/clients/blockexplorerclient"
 	"github.com/crypto-power/instantswap/blockexplorer/global/interfaces/idaemon"
-	"github.com/crypto-power/instantswap/blockexplorer/global/utils"
 )
 
 const (
@@ -36,14 +35,40 @@ func New(config blockexplorer.Config) *aptExplorer {
 	return &aptExplorer{client: client, conf: config}
 }
 
-func (e *aptExplorer) VerifyByAddress(req blockexplorer.AddressVerifyRequest) (vr *blockexplorer.VerifyResult, err error) {
-	txs, err := e.getTxsForAddress(req.Address, 25, "")
-	fmt.Println(txs)
-	return
+func (a *aptExplorer) VerifyByAddress(req blockexplorer.AddressVerifyRequest) (vr *blockexplorer.VerifyResult, err error) {
+	txs, err := a.getTxsForAddress(req.Address, 25, "")
+	if err != nil {
+		return nil, err
+	}
+	for _, tx := range txs {
+
+		for _, event := range tx.Events {
+			if event.Guid.AccountAddress == req.Address {
+				tArr := strings.Split(event.Type, "::")
+				if len(tArr) != 3 {
+					continue
+				}
+				if tArr[1] == "coin" && (tArr[2] == "WithdrawEvent" || tArr[2] == "DepositEvent") {
+					blockExplorerAmount := idaemon.Amount(event.Data.Amount)
+					if blockExplorerAmount.ToCoin() == req.Amount {
+						return &blockexplorer.VerifyResult{
+							Seen:                true,
+							Verified:            true,
+							OrderedAmount:       req.Amount,
+							BlockExplorerAmount: blockExplorerAmount.ToCoin(),
+							MissingAmount:       0,
+							MissingPercent:      0,
+						}, nil
+					}
+				}
+			}
+		}
+	}
+	return nil, fmt.Errorf("tx not found")
 }
 
-func (e *aptExplorer) blockchainInfo() (*Blockchain, error) {
-	r, err := e.client.Do("GET", "", "", false)
+func (a *aptExplorer) blockchainInfo() (*Blockchain, error) {
+	r, err := a.client.Do("GET", "", "", false)
 	if err != nil {
 		return nil, err
 	}
@@ -52,8 +77,8 @@ func (e *aptExplorer) blockchainInfo() (*Blockchain, error) {
 	return &b, err
 }
 
-func (e *aptExplorer) getTxByHash(hash string) (*Transaction, error) {
-	r, err := e.client.Do("GET", fmt.Sprintf("transactions/by_hash/%s", hash), "", false)
+func (a *aptExplorer) getTxByHash(hash string) (*Transaction, error) {
+	r, err := a.client.Do("GET", fmt.Sprintf("transactions/by_hash/%s", hash), "", false)
 	if err != nil {
 		return nil, err
 	}
@@ -65,8 +90,8 @@ func (e *aptExplorer) getTxByHash(hash string) (*Transaction, error) {
 	return &aptTx, err
 }
 
-func (e *aptExplorer) getTxByVersion(version string) (*Transaction, error) {
-	r, err := e.client.Do("GET", fmt.Sprintf("transactions/by_version/%s", version), "", false)
+func (a *aptExplorer) getTxByVersion(version string) (*Transaction, error) {
+	r, err := a.client.Do("GET", fmt.Sprintf("transactions/by_version/%s", version), "", false)
 	if err != nil {
 		return nil, err
 	}
@@ -78,19 +103,19 @@ func (e *aptExplorer) getTxByVersion(version string) (*Transaction, error) {
 	return &aptTx, err
 }
 
-func (e *aptExplorer) GetTransaction(txId string) (tx *blockexplorer.ITransaction, err error) {
-	aptTx, err := e.getTxByHash(txId)
+func (a *aptExplorer) GetTransaction(txId string) (tx *blockexplorer.ITransaction, err error) {
+	aptTx, err := a.getTxByHash(txId)
 	if err != nil {
 		return nil, err
 	}
 	var blockHeight, confirmations int
-	block, _ := e.getBlockByVersion(aptTx.Version)
+	block, _ := a.getBlockByVersion(aptTx.Version)
 	if block != nil {
-		blockHeight = utils.StrToInt(block.BlockHeight)
+		blockHeight = block.BlockHeight
 	}
-	blockchain, _ := e.blockchainInfo()
+	blockchain, _ := a.blockchainInfo()
 	if blockchain != nil {
-		confirmations = utils.StrToInt(blockchain.BlockHeight) - blockHeight
+		confirmations = blockchain.BlockHeight - blockHeight
 	}
 	vIns, vOuts := aptTx.getInOutPuts()
 	return &blockexplorer.ITransaction{
@@ -118,12 +143,12 @@ func (e *aptExplorer) GetTransaction(txId string) (tx *blockexplorer.ITransactio
 	}, err
 }
 
-func (e *aptExplorer) GetTxsForAddress(address string, limit int, viewKey string) (tx *blockexplorer.IRawAddrResponse, err error) {
+func (a *aptExplorer) GetTxsForAddress(address string, limit int, viewKey string) (tx *blockexplorer.IRawAddrResponse, err error) {
 	//r, err := e.client.Do("GET", fmt.Sprintf("accounts/%s/resources", address), "", false)
 	return nil, fmt.Errorf("%s:not supported", LIBNAME)
 }
 
-func (e *aptExplorer) getTxsForAddress(address string, limit int, viewKey string) ([]*Transaction, error) {
+func (a *aptExplorer) getTxsForAddress(address string, limit int, viewKey string) ([]*Transaction, error) {
 	query := fmt.Sprintf(`{
 	"operationName":"AccountTransactionsData",
 	"variables":{"address":"%s","limit":%d,"offset":0},
@@ -147,7 +172,7 @@ func (e *aptExplorer) getTxsForAddress(address string, limit int, viewKey string
 	}
 	var txs []*Transaction
 	for _, txVer := range obj.AddressVersionFromMoveResources {
-		aptTx, err := e.getTxByVersion(fmt.Sprintf("%d", txVer.TransactionVersion))
+		aptTx, err := a.getTxByVersion(fmt.Sprintf("%d", txVer.TransactionVersion))
 		if err == nil {
 			txs = append(txs, aptTx)
 		}
@@ -155,18 +180,18 @@ func (e *aptExplorer) getTxsForAddress(address string, limit int, viewKey string
 	return txs, nil
 }
 
-func (e *aptExplorer) VerifyTransaction(verifier blockexplorer.TxVerifyRequest) (tx *blockexplorer.ITransaction, err error) {
+func (a *aptExplorer) VerifyTransaction(verifier blockexplorer.TxVerifyRequest) (tx *blockexplorer.ITransaction, err error) {
 	tx = &blockexplorer.ITransaction{}
-	aptTx, err := e.getTxByHash(verifier.TxId)
+	aptTx, err := a.getTxByHash(verifier.TxId)
 	if err != nil {
 		return nil, err
 	}
 	tx.Hash = aptTx.Hash
-	block, _ := e.getBlockByVersion(aptTx.Version)
-	tx.BlockHeight = utils.StrToInt(block.BlockHeight)
-	blockchain, _ := e.blockchainInfo()
+	block, _ := a.getBlockByVersion(aptTx.Version)
+	tx.BlockHeight = block.BlockHeight
+	blockchain, _ := a.blockchainInfo()
 	if blockchain != nil {
-		tx.Confirmations = utils.StrToInt(blockchain.BlockHeight) - tx.BlockHeight
+		tx.Confirmations = blockchain.BlockHeight - tx.BlockHeight
 	}
 	for _, event := range aptTx.Events {
 		if event.Guid.AccountAddress == verifier.Address {
@@ -177,7 +202,7 @@ func (e *aptExplorer) VerifyTransaction(verifier blockexplorer.TxVerifyRequest) 
 				continue
 			}
 			if tArr[1] == "coin" && (tArr[2] == "WithdrawEvent" || tArr[2] == "DepositEvent") {
-				tx.BlockExplorerAmount = idaemon.Amount(utils.StrToInt(event.Data.Amount))
+				tx.BlockExplorerAmount = idaemon.Amount(event.Data.Amount)
 				coinAmount := tx.BlockExplorerAmount.ToCoin()
 				tx.MissingAmount, _ = idaemon.NewAmount(verifier.Amount - coinAmount)
 				tx.MissingPercent = 100 * (verifier.Amount - coinAmount) / verifier.Amount
@@ -188,12 +213,12 @@ func (e *aptExplorer) VerifyTransaction(verifier blockexplorer.TxVerifyRequest) 
 	return
 }
 
-func (e *aptExplorer) PushTx(rawTxHash string) (result string, err error) {
+func (a *aptExplorer) PushTx(rawTxHash string) (result string, err error) {
 	return "", fmt.Errorf("%s:not supported", LIBNAME)
 }
 
-func (e *aptExplorer) getBlockByVersion(version string) (*BlockInfo, error) {
-	r, err := e.client.Do("GET", fmt.Sprintf("blocks/by_version/%s", version), "", false)
+func (a *aptExplorer) getBlockByVersion(version string) (*BlockInfo, error) {
+	r, err := a.client.Do("GET", fmt.Sprintf("blocks/by_version/%s", version), "", false)
 	if err != nil {
 		return nil, err
 	}

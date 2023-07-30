@@ -96,10 +96,11 @@ type TxVerifyRequest struct {
 }
 
 type AddressVerifyRequest struct {
-	Address string
-	Amount  float64
-	ViewKey string
-	Confirm int
+	Address   string
+	Amount    float64
+	ViewKey   string
+	Confirm   int
+	Timestamp int
 }
 
 type VerifyResult struct {

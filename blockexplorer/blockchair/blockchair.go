@@ -41,6 +41,10 @@ type BlockChair struct {
 	network   string
 }
 
+func (b *BlockChair) VerifyByAddress(req blockexplorer.AddressVerifyRequest) (vr *blockexplorer.VerifyResult, err error) {
+	return nil, err
+}
+
 func (b *BlockChair) getTx(txid string) (*TxWrapper, *Context, error) {
 	r, err := b.client.Do("GET", fmt.Sprintf("transaction/%s", txid), "", false)
 	if err != nil {

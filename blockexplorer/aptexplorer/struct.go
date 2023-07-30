@@ -8,7 +8,6 @@ import (
 
 	"github.com/crypto-power/instantswap/blockexplorer"
 	"github.com/crypto-power/instantswap/blockexplorer/global/interfaces/idaemon"
-	"github.com/crypto-power/instantswap/blockexplorer/global/utils"
 )
 
 func parseResponseData(r []byte, obj interface{}) error {
@@ -97,7 +96,7 @@ type TxEvent struct {
 	SequenceNumber string `json:"sequence_number"`
 	Type           string `json:"type"`
 	Data           struct {
-		Amount string `json:"amount"`
+		Amount int `json:"amount,string"`
 	} `json:"data"`
 }
 
@@ -116,16 +115,16 @@ type Blockchain struct {
 	LedgerTimestamp     string `json:"ledger_timestamp"`
 	NodeRole            string `json:"node_role"`
 	OldestBlockHeight   string `json:"oldest_block_height"`
-	BlockHeight         string `json:"block_height"`
+	BlockHeight         int    `json:"block_height,string"`
 	GitHash             string `json:"git_hash"`
 }
 
 type BlockInfo struct {
-	BlockHeight    string `json:"block_height"`
+	BlockHeight    int    `json:"block_height,string"`
 	BlockHash      string `json:"block_hash"`
-	BlockTimestamp string `json:"block_timestamp"`
-	FirstVersion   string `json:"first_version"`
-	LastVersion    string `json:"last_version"`
+	BlockTimestamp int    `json:"block_timestamp,string"`
+	FirstVersion   int    `json:"first_version,string"`
+	LastVersion    int    `json:"last_version,string"`
 }
 
 func (tx *Transaction) getInOutPuts() (vIns []blockexplorer.IVIN, vOuts []blockexplorer.IVOUT) {
@@ -138,7 +137,7 @@ func (tx *Transaction) getInOutPuts() (vIns []blockexplorer.IVIN, vOuts []blocke
 				TxID:        "",
 				VOUT:        0,
 				Tree:        0,
-				AmountIn:    idaemon.Amount(utils.StrToInt(event.Data.Amount)),
+				AmountIn:    idaemon.Amount(event.Data.Amount),
 				BlockIndex:  0,
 				BlockHeight: 0,
 			})
@@ -155,7 +154,7 @@ func (tx *Transaction) getInOutPuts() (vIns []blockexplorer.IVIN, vOuts []blocke
 				Spent:       false,
 				TxIndex:     0,
 				Type:        "",
-				Value:       idaemon.Amount(utils.StrToInt(event.Data.Amount)),
+				Value:       idaemon.Amount(event.Data.Amount),
 			})
 		}
 	}
