@@ -50,6 +50,27 @@ func (c *chainzCryptoid) SetDebug(enable bool) {
 	c.client.Debug = enable
 }
 
+func (c *chainzCryptoid) VerifyByAddress(req blockexplorer.AddressVerifyRequest) (vr *blockexplorer.VerifyResult, err error) {
+	addr, err := c.getTxsForAddress(req.Address)
+	if err != nil {
+		return nil, err
+	}
+	for _, tx := range addr.Txrefs {
+		var value = idaemon.Amount(tx.Value)
+		if value.ToCoin() == req.Amount {
+			return &blockexplorer.VerifyResult{
+				Seen:                true,
+				Verified:            true,
+				OrderedAmount:       req.Amount,
+				BlockExplorerAmount: value.ToCoin(),
+				MissingAmount:       0,
+				MissingPercent:      0,
+			}, nil
+		}
+	}
+	return nil, fmt.Errorf("not found")
+}
+
 // GetTransaction returns decoded transaction from api
 func (c *chainzCryptoid) GetTransaction(txid string) (tx *blockexplorer.ITransaction, err error) {
 	r, err := c.client.Do("GET", fmt.Sprintf("txs/%s", txid), "", false)
@@ -65,13 +86,18 @@ func (c *chainzCryptoid) GetTransaction(txid string) (tx *blockexplorer.ITransac
 }
 
 // GetTransactionsForAddress
-func (c *chainzCryptoid) GetTxsForAddress(address string, limit int, viewKey string) (txs *blockexplorer.IRawAddrResponse, err error) {
+func (c *chainzCryptoid) getTxsForAddress(address string) (addr *Address, err error) {
 	r, err := c.client.Do("GET", fmt.Sprintf("addrs/%s", address), "", false)
 	if err != nil {
 		return nil, err
 	}
-	var addr Address
-	err = parseData(r, &addr)
+	addr = &Address{}
+	err = parseData(r, addr)
+	return
+}
+
+func (c *chainzCryptoid) GetTxsForAddress(address string, limit int, viewKey string) (txs *blockexplorer.IRawAddrResponse, err error) {
+	addr, err := c.getTxsForAddress(address)
 	if err != nil {
 		return nil, err
 	}

@@ -42,7 +42,7 @@ type BlockChair struct {
 }
 
 func (b *BlockChair) VerifyByAddress(req blockexplorer.AddressVerifyRequest) (vr *blockexplorer.VerifyResult, err error) {
-	return nil, err
+	return nil, fmt.Errorf("not supported yet")
 }
 
 func (b *BlockChair) getTx(txid string) (*TxWrapper, *Context, error) {
