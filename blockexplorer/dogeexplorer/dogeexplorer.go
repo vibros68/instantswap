@@ -31,7 +31,22 @@ func New(config blockexplorer.Config) *dogeExplorer {
 	client := blockexplorerclient.NewClient(API_BASE, LIBNAME, config.EnableOutput, nil)
 	return &dogeExplorer{client: client, conf: config}
 }
-
+func (d *dogeExplorer) VerifyByAddress(req blockexplorer.AddressVerifyRequest) (vr *blockexplorer.VerifyResult, err error) {
+	txs, err := d.getTxsForAddress(req.Address)
+	for _, tx := range txs {
+		if tx.Value == req.Amount {
+			return &blockexplorer.VerifyResult{
+				Seen:                true,
+				Verified:            true,
+				OrderedAmount:       req.Amount,
+				BlockExplorerAmount: tx.Value,
+				MissingAmount:       0,
+				MissingPercent:      0,
+			}, nil
+		}
+	}
+	return nil, fmt.Errorf("not found")
+}
 func (d *dogeExplorer) GetTransaction(txId string) (tx *blockexplorer.ITransaction, err error) {
 	var response = struct {
 		Res
@@ -50,8 +65,7 @@ func (d *dogeExplorer) GetTransaction(txId string) (tx *blockexplorer.ITransacti
 	}
 	return response.Tx.tx(), nil
 }
-func (d *dogeExplorer) GetTxsForAddress(address string, limit int, viewKey string) (tx *blockexplorer.IRawAddrResponse, err error) {
-	tx = &blockexplorer.IRawAddrResponse{}
+func (d *dogeExplorer) getTxsForAddress(address string) (txs []TxForAddress, err error) {
 	var response = struct {
 		Res
 		Txs []TxForAddress `json:"transactions"`
@@ -61,14 +75,20 @@ func (d *dogeExplorer) GetTxsForAddress(address string, limit int, viewKey strin
 		return nil, err
 	}
 	err = json.Unmarshal(r, &response)
-	if err != nil {
-		return nil, err
-	}
 	if response.Success == 0 {
 		return nil, fmt.Errorf(response.Error)
 	}
-	var txsRaw = make([]blockexplorer.IRawAddrTx, len(response.Txs))
-	for i, tx := range response.Txs {
+	return response.Txs, err
+}
+func (d *dogeExplorer) GetTxsForAddress(address string, limit int, viewKey string) (tx *blockexplorer.IRawAddrResponse, err error) {
+	tx = &blockexplorer.IRawAddrResponse{}
+	txs, err := d.getTxsForAddress(address)
+	if err != nil {
+		return nil, err
+	}
+
+	var txsRaw = make([]blockexplorer.IRawAddrTx, len(txs))
+	for i, tx := range txs {
 		txsRaw[i] = blockexplorer.IRawAddrTx{
 			BlockHeight:   tx.Block,
 			Hash:          tx.Hash,

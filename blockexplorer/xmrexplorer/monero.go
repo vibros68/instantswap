@@ -29,6 +29,10 @@ type MoneroExplorer struct {
 	client *blockexplorerclient.Client
 }
 
+func (d *MoneroExplorer) VerifyByAddress(req blockexplorer.AddressVerifyRequest) (vr *blockexplorer.VerifyResult, err error) {
+	return nil, err
+}
+
 func (z *MoneroExplorer) GetTransaction(txId string) (*blockexplorer.ITransaction, error) {
 	r, err := z.client.Do("GET", fmt.Sprintf("transaction/%s", txId), "", false)
 	var tx Transaction

@@ -2,6 +2,8 @@ package ethplorer
 
 import (
 	"fmt"
+	"math"
+	"math/big"
 	"strings"
 
 	"github.com/crypto-power/instantswap/blockexplorer"
@@ -23,10 +25,32 @@ type Tx struct {
 	Operations    []TxOperation `json:"operations"`
 }
 
+type BigFloat struct {
+	big.Float
+}
+
+func (b BigFloat) MarshalJSON() ([]byte, error) {
+	return []byte(b.String()), nil
+}
+
+func (b *BigFloat) UnmarshalJSON(p []byte) error {
+	if string(p) == "null" {
+		return nil
+	}
+	var z big.Float
+	var num = string(p)[1 : len(p)-1]
+	_, ok := z.SetString(num)
+	if !ok {
+		return fmt.Errorf("not a valid big float: %s", num)
+	}
+	b.Float = z
+	return nil
+}
+
 type TxOperation struct {
 	Timestamp       int       `json:"timestamp"`
 	TransactionHash string    `json:"transactionHash"`
-	Value           int       `json:"value,string"`
+	Value           BigFloat  `json:"value,string"`
 	IntValue        int64     `json:"intValue"`
 	Type            string    `json:"type"`
 	IsEth           bool      `json:"isEth"`
@@ -36,6 +60,14 @@ type TxOperation struct {
 	Addresses       []string  `json:"addresses"`
 	UsdPrice        float64   `json:"usdPrice"`
 	TokenInfo       TokenInfo `json:"tokenInfo"`
+}
+
+func (t *TxOperation) value() float64 {
+	dec := big.NewFloat(math.Pow(10, -float64(t.TokenInfo.Decimals)))
+	val := big.Float{}
+	val.Mul(&t.Value.Float, dec)
+	fVal, _ := val.Float64()
+	return fVal
 }
 
 type TxLog struct {
