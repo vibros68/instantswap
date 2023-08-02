@@ -2,6 +2,7 @@ package ethplorer
 
 import (
 	"fmt"
+	"github.com/crypto-power/instantswap/blockexplorer/global/utils"
 	"math"
 	"net/http"
 	"strings"
@@ -49,25 +50,20 @@ func (e *etherScan) VerifyByAddress(req blockexplorer.AddressVerifyRequest) (vr 
 				strings.ToLower(operation.To) == strings.ToLower(req.Address) {
 
 				explorerAmount := operation.value()
-				if approximatelyCompare(explorerAmount, req.Amount) {
+				if utils.ApproximateCompare(explorerAmount, req.Amount) {
 					return &blockexplorer.VerifyResult{
 						Seen:                true,
 						Verified:            true,
 						OrderedAmount:       req.Amount,
 						BlockExplorerAmount: explorerAmount,
-						MissingAmount:       0,
-						MissingPercent:      0,
+						MissingAmount:       req.Amount - explorerAmount,
+						MissingPercent:      (req.Amount - explorerAmount) / req.Amount,
 					}, nil
 				}
 			}
 		}
 	}
 	return nil, fmt.Errorf("not found")
-}
-
-func approximatelyCompare(a, b float64) bool {
-	diffPer := (a - b) / b
-	return diffPer <= 1.0001 && diffPer >= -1.0001
 }
 
 func (e *etherScan) getTx(txId string) (*Tx, error) {
