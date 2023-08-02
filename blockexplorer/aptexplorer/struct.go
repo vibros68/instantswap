@@ -2,38 +2,16 @@ package aptexplorer
 
 import (
 	"encoding/json"
+	"fmt"
+	"io"
 	"strings"
 
 	"github.com/crypto-power/instantswap/blockexplorer"
 	"github.com/crypto-power/instantswap/blockexplorer/global/interfaces/idaemon"
-	"github.com/crypto-power/instantswap/blockexplorer/global/utils"
 )
 
 func parseResponseData(r []byte, obj interface{}) error {
 	return json.Unmarshal(r, obj)
-}
-
-type T struct {
-	Type string `json:"type"`
-	Data struct {
-		Coin struct {
-			Value string `json:"value"`
-		} `json:"coin"`
-		DepositEvents struct {
-			Counter string `json:"counter"`
-			Guid    struct {
-				Id struct {
-					Addr        string `json:"addr"`
-					CreationNum string `json:"creation_num"`
-				} `json:"id"`
-			} `json:"guid"`
-		} `json:"deposit_events"`
-		Frozen         bool `json:"frozen"`
-		WithdrawEvents struct {
-			Counter string    `json:"counter"`
-			Guid    EventGuid `json:"guid"`
-		} `json:"withdraw_events"`
-	} `json:"data"`
 }
 
 type EventGuid struct {
@@ -118,7 +96,7 @@ type TxEvent struct {
 	SequenceNumber string `json:"sequence_number"`
 	Type           string `json:"type"`
 	Data           struct {
-		Amount string `json:"amount"`
+		Amount int `json:"amount,string"`
 	} `json:"data"`
 }
 
@@ -137,16 +115,16 @@ type Blockchain struct {
 	LedgerTimestamp     string `json:"ledger_timestamp"`
 	NodeRole            string `json:"node_role"`
 	OldestBlockHeight   string `json:"oldest_block_height"`
-	BlockHeight         string `json:"block_height"`
+	BlockHeight         int    `json:"block_height,string"`
 	GitHash             string `json:"git_hash"`
 }
 
 type BlockInfo struct {
-	BlockHeight    string `json:"block_height"`
+	BlockHeight    int    `json:"block_height,string"`
 	BlockHash      string `json:"block_hash"`
-	BlockTimestamp string `json:"block_timestamp"`
-	FirstVersion   string `json:"first_version"`
-	LastVersion    string `json:"last_version"`
+	BlockTimestamp int    `json:"block_timestamp,string"`
+	FirstVersion   int    `json:"first_version,string"`
+	LastVersion    int    `json:"last_version,string"`
 }
 
 func (tx *Transaction) getInOutPuts() (vIns []blockexplorer.IVIN, vOuts []blockexplorer.IVOUT) {
@@ -159,7 +137,7 @@ func (tx *Transaction) getInOutPuts() (vIns []blockexplorer.IVIN, vOuts []blocke
 				TxID:        "",
 				VOUT:        0,
 				Tree:        0,
-				AmountIn:    idaemon.Amount(utils.StrToInt(event.Data.Amount)),
+				AmountIn:    idaemon.Amount(event.Data.Amount),
 				BlockIndex:  0,
 				BlockHeight: 0,
 			})
@@ -176,7 +154,7 @@ func (tx *Transaction) getInOutPuts() (vIns []blockexplorer.IVIN, vOuts []blocke
 				Spent:       false,
 				TxIndex:     0,
 				Type:        "",
-				Value:       idaemon.Amount(utils.StrToInt(event.Data.Amount)),
+				Value:       idaemon.Amount(event.Data.Amount),
 			})
 		}
 	}
@@ -189,4 +167,34 @@ func getTypeName(t string) string {
 		return tPiece[2]
 	}
 	return ""
+}
+
+type graphqlRes struct {
+	Data   json.RawMessage `json:"data"`
+	Errors []GraphError    `json:"errors"`
+}
+
+type GraphError struct {
+	Extensions struct {
+		Code string `json:"code"`
+		Path string `json:"path"`
+	} `json:"extensions"`
+	Message string `json:"message"`
+}
+
+type TxVersionResponse struct {
+	TransactionVersion int    `json:"transaction_version"`
+	Typename           string `json:"__typename"`
+}
+
+func parseDgraph(res io.Reader, obj interface{}) error {
+	var dgraphRes graphqlRes
+	err := json.NewDecoder(res).Decode(&dgraphRes)
+	if err != nil {
+		return err
+	}
+	if len(dgraphRes.Errors) > 0 {
+		return fmt.Errorf(dgraphRes.Errors[0].Message)
+	}
+	return json.Unmarshal(dgraphRes.Data, obj)
 }

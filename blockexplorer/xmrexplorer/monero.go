@@ -2,6 +2,7 @@ package xmrexplorer
 
 import (
 	"fmt"
+	"github.com/crypto-power/instantswap/blockexplorer/global/utils"
 
 	"github.com/crypto-power/instantswap/blockexplorer"
 	"github.com/crypto-power/instantswap/blockexplorer/global/clients/blockexplorerclient"
@@ -27,6 +28,30 @@ func New(conf blockexplorer.Config) *MoneroExplorer {
 
 type MoneroExplorer struct {
 	client *blockexplorerclient.Client
+}
+
+func (z *MoneroExplorer) VerifyByAddress(req blockexplorer.AddressVerifyRequest) (vr *blockexplorer.VerifyResult, err error) {
+	r, err := z.client.Do("GET", fmt.Sprintf("outputsblocks?address=%s&viewkey=%s&limit=%d&mempool=1",
+		req.Address, req.ViewKey, 5), "", false)
+	fmt.Println(string(r))
+	var outputsBlocks OutputsBlocks
+	if err = parseMoneroResponseData(r, &outputsBlocks); err != nil {
+		return nil, err
+	}
+	for _, output := range outputsBlocks.Outputs {
+		value := float64(output.Amount) / 1e12
+		if utils.ApproximateCompare(value, req.Amount) {
+			return &blockexplorer.VerifyResult{
+				Seen:                true,
+				Verified:            true,
+				OrderedAmount:       req.Amount,
+				BlockExplorerAmount: value,
+				MissingAmount:       req.Amount - value,
+				MissingPercent:      (req.Amount - value) / req.Amount,
+			}, nil
+		}
+	}
+	return nil, err
 }
 
 func (z *MoneroExplorer) GetTransaction(txId string) (*blockexplorer.ITransaction, error) {

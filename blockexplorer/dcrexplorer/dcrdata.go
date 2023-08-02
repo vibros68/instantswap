@@ -54,6 +54,30 @@ func (c *DCRData) SetDebug(enable bool) {
 	c.client.Debug = enable
 }
 
+func (c *DCRData) VerifyByAddress(req blockexplorer.AddressVerifyRequest) (vr *blockexplorer.VerifyResult, err error) {
+	txs, err := c.getTxsForAddress(req.Address, 25)
+	if err != nil {
+		return nil, err
+	}
+	for _, tx := range txs {
+		for _, out := range tx.Vout {
+			if len(out.ScriptPubKey.Addresses) == 1 && out.ScriptPubKey.Addresses[0] == req.Address {
+				if out.Value == req.Amount {
+					return &blockexplorer.VerifyResult{
+						Seen:                true,
+						Verified:            true,
+						OrderedAmount:       req.Amount,
+						BlockExplorerAmount: out.Value,
+						MissingAmount:       0,
+						MissingPercent:      0,
+					}, nil
+				}
+			}
+		}
+	}
+	return nil, fmt.Errorf("not found")
+}
+
 // GetTransaction returns decoded transaction from explorer.dcrdata.org/api
 func (c *DCRData) GetTransaction(txid string) (tx *blockexplorer.ITransaction, err error) {
 	r, err := c.client.Do("GET", "tx/"+txid, "", false)
@@ -119,20 +143,20 @@ func (c *DCRData) GetTransaction(txid string) (tx *blockexplorer.ITransaction, e
 	return
 }
 
-// GetTransactionsForAddress
-func (c *DCRData) GetTxsForAddress(address string, limit int, viewKey string) (txs *blockexplorer.IRawAddrResponse, err error) {
+func (c *DCRData) getTxsForAddress(address string, limit int) (txs []RawAddrTx, err error) {
 	r, err := c.client.Do("GET", fmt.Sprintf("address/%s/count/%v/raw", address, limit), "", false)
 	if err != nil {
-		errStr := fmt.Sprintf(" could not find/parse address %s msg: %s", address, err.Error())
-		err = errors.New(errStr)
-		return
+		return nil, fmt.Errorf(" could not find/parse address %s msg: %s", address, err.Error())
 	}
+	err = json.Unmarshal(r, &txs)
+	return
+}
 
-	var tmp []RawAddrTx
-	if err = json.Unmarshal(r, &tmp); err != nil {
-		errStr := fmt.Sprintf(LIBNAME+":error: could not parse response for address %s msg: %s", address, err.Error())
-		err = errors.New(errStr)
-		return
+// GetTransactionsForAddress
+func (c *DCRData) GetTxsForAddress(address string, limit int, viewKey string) (txs *blockexplorer.IRawAddrResponse, err error) {
+	tmp, err := c.getTxsForAddress(address, limit)
+	if err != nil {
+		return nil, err
 	}
 
 	txs = &blockexplorer.IRawAddrResponse{

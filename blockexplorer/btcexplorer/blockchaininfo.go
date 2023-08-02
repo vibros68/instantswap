@@ -55,6 +55,29 @@ func (c *BlockChainInfo) SetDebug(enable bool) {
 	c.client.Debug = enable
 }
 
+func (c *BlockChainInfo) VerifyByAddress(req blockexplorer.AddressVerifyRequest) (vr *blockexplorer.VerifyResult, err error) {
+	rawAddr, err := c.getTxsForAddress(req.Address, 25)
+	if err != nil {
+		return nil, err
+	}
+	for _, tx := range rawAddr.Txs {
+		for _, out := range tx.Outputs {
+			value := idaemon.Amount(out.Value)
+			if value.ToCoin() == req.Amount {
+				return &blockexplorer.VerifyResult{
+					Seen:                true,
+					Verified:            true,
+					OrderedAmount:       req.Amount,
+					BlockExplorerAmount: value.ToCoin(),
+					MissingAmount:       0,
+					MissingPercent:      0,
+				}, nil
+			}
+		}
+	}
+	return nil, fmt.Errorf("not found")
+}
+
 // GetTransaction returns decoded transaction from api
 func (c *BlockChainInfo) GetTransaction(txid string) (tx *blockexplorer.ITransaction, err error) {
 	r, err := c.client.Do("GET", "rawtx/"+txid, "", false)
@@ -117,18 +140,26 @@ func (c *BlockChainInfo) GetTransaction(txid string) (tx *blockexplorer.ITransac
 	return
 }
 
-// GetTransactionsForAddress
-func (c *BlockChainInfo) GetTxsForAddress(address string, limit int, viewKey string) (txs *blockexplorer.IRawAddrResponse, err error) {
+func (c *BlockChainInfo) getTxsForAddress(address string, limit int) (txs *RawAddrResponse, err error) {
 	r, err := c.client.Do("GET", fmt.Sprintf("rawaddr/%s?&limit=%v", address, limit), "", false)
 	if err != nil {
 		return
 	}
-
-	var tmp RawAddrResponse
-	if err = json.Unmarshal(r, &tmp); err != nil {
+	var rawaddr RawAddrResponse
+	if err = json.Unmarshal(r, &rawaddr); err != nil {
 		errStr := fmt.Sprintf(LIBNAME+":error: could not parse response for address %s msg: %s", address, err.Error())
 		err = errors.New(errStr)
 		return
+	}
+	return &rawaddr, nil
+}
+
+// GetTransactionsForAddress
+func (c *BlockChainInfo) GetTxsForAddress(address string, limit int, viewKey string) (txs *blockexplorer.IRawAddrResponse, err error) {
+	tmp, err := c.getTxsForAddress(address, limit)
+
+	if err != nil {
+		return nil, err
 	}
 
 	//get latest block to get our confirmations

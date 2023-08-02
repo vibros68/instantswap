@@ -2,6 +2,7 @@ package ethplorer
 
 import (
 	"fmt"
+	"github.com/crypto-power/instantswap/blockexplorer/global/utils"
 	"math"
 	"net/http"
 	"strings"
@@ -37,6 +38,34 @@ func New(conf blockexplorer.Config) (*etherScan, error) {
 	}, nil
 }
 
+func (e *etherScan) VerifyByAddress(req blockexplorer.AddressVerifyRequest) (vr *blockexplorer.VerifyResult, err error) {
+	txs, err := e.getTxsForAddress(req.Address)
+	if err != nil {
+		return nil, err
+	}
+	if e.conf.Type == blockexplorer.NetworkTypeErc20 {
+		var symbol = strings.ToUpper(e.conf.Symbol)
+		for _, operation := range txs {
+			if operation.TokenInfo.Symbol == symbol &&
+				strings.ToLower(operation.To) == strings.ToLower(req.Address) {
+
+				explorerAmount := operation.value()
+				if utils.ApproximateCompare(explorerAmount, req.Amount) {
+					return &blockexplorer.VerifyResult{
+						Seen:                true,
+						Verified:            true,
+						OrderedAmount:       req.Amount,
+						BlockExplorerAmount: explorerAmount,
+						MissingAmount:       req.Amount - explorerAmount,
+						MissingPercent:      (req.Amount - explorerAmount) / req.Amount,
+					}, nil
+				}
+			}
+		}
+	}
+	return nil, fmt.Errorf("not found")
+}
+
 func (e *etherScan) getTx(txId string) (*Tx, error) {
 	r, err := e.client.Do("GET", fmt.Sprintf("getTxInfo/%s?apiKey=freekey", txId), "", false)
 	if err != nil {
@@ -52,10 +81,10 @@ func (e *etherScan) GetTransaction(txId string) (tx *blockexplorer.ITransaction,
 	if err != nil {
 		return nil, err
 	}
-	fmt.Println(ethTx.Operations[0].TokenInfo.Decimals)
 	return e.generalTx(ethTx)
 }
-func (e *etherScan) GetTxsForAddress(address string, limit int, viewKey string) (tx *blockexplorer.IRawAddrResponse, err error) {
+
+func (e *etherScan) getTxsForAddress(address string) (txs []TxOperation, err error) {
 	r, err := e.client.Do("GET", fmt.Sprintf("getAddressHistory/%s?apiKey=freekey", address), "", false)
 	if err != nil {
 		return nil, err
@@ -64,6 +93,13 @@ func (e *etherScan) GetTxsForAddress(address string, limit int, viewKey string) 
 		Operations []TxOperation `json:"operations"`
 	}
 	err = parse(r, &addrInfo)
+	if err != nil {
+		return nil, err
+	}
+	return addrInfo.Operations, nil
+}
+func (e *etherScan) GetTxsForAddress(address string, limit int, viewKey string) (tx *blockexplorer.IRawAddrResponse, err error) {
+	txs, err := e.getTxsForAddress(address)
 	if err != nil {
 		return nil, err
 	}
@@ -78,9 +114,9 @@ func (e *etherScan) GetTxsForAddress(address string, limit int, viewKey string) 
 	}
 	if e.conf.Type == blockexplorer.NetworkTypeErc20 {
 		var symbol = strings.ToUpper(e.conf.Symbol)
-		for _, operation := range addrInfo.Operations {
+		for _, operation := range txs {
 			if operation.TokenInfo.Symbol == symbol {
-				explorerAmount := float64(operation.IntValue) / math.Pow(10, float64(operation.TokenInfo.Decimals))
+				explorerAmount := operation.value()
 				amount, _ := idaemon.NewAmount(explorerAmount)
 				tx.Txs = append(tx.Txs, blockexplorer.IRawAddrTx{
 					BlockHeight: 0,

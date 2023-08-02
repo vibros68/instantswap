@@ -60,3 +60,8 @@ func init() {
 func RandomInt(min, max int) int {
 	return rand.Intn(max-min+1) + min
 }
+
+func ApproximateCompare(a, b float64) bool {
+	diffPer := (a - b) / b
+	return diffPer <= 1.0001 && diffPer >= -1.0001
+}
