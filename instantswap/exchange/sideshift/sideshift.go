@@ -146,7 +146,7 @@ func (s *SideShift) CancelOrder(orderID string) (res string, err error) {
 	return res, fmt.Errorf("not supported")
 }
 
-func (s *SideShift) OrderInfo(orderID string) (res instantswap.OrderInfoResult, err error) {
+func (s *SideShift) OrderInfo(orderID string, extraIds ...string) (res instantswap.OrderInfoResult, err error) {
 	r, err := s.client.Do(API_BASE, http.MethodGet,
 		fmt.Sprintf("shifts/%s", orderID), "", false)
 	if err != nil {

@@ -13,7 +13,6 @@ type IDExchange interface {
 	GetCurrencies() (currencies []Currency, err error)
 	// GetCurrenciesToPair return a list of available currencies for a specific currency
 	GetCurrenciesToPair(from string) (currencies []Currency, err error)
-	QueryRates(vars interface{}) (res []QueryRate, err error)
 	QueryLimits(fromCurr, toCurr string) (res QueryLimits, err error)
 	CreateOrder(vars CreateOrder) (res CreateResultInfo, err error)
 	//UpdateOrder accepts orderID value and more if needed per lib
@@ -21,7 +20,7 @@ type IDExchange interface {
 	CancelOrder(orderID string) (res string, err error)
 
 	//OrderInfo accepts orderID value and more if needed per lib
-	OrderInfo(orderID string) (res OrderInfoResult, err error)
+	OrderInfo(orderID string, extraIds ...string) (res OrderInfoResult, err error)
 
 	GetExchangeRateInfo(vars ExchangeRateRequest) (res ExchangeRateInfo, err error)
 }

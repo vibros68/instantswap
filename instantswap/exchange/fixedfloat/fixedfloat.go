@@ -4,16 +4,16 @@ import (
 	"crypto/hmac"
 	"crypto/sha256"
 	"encoding/hex"
+	"encoding/json"
 	"fmt"
 	"net/http"
-	"net/url"
 	"strings"
 
 	"github.com/crypto-power/instantswap/instantswap"
 )
 
 const (
-	API_BASE = "https://fixedfloat.com/api/v1/"
+	API_BASE = "https://ff.io/api/v2/"
 	LIBNAME  = "fixedfloat"
 )
 
@@ -41,7 +41,6 @@ func New(conf instantswap.ExchangeConfig) (*FixedFloat, error) {
 		sig := hmac.New(sha256.New, key)
 		sig.Write([]byte(body))
 		signedMsg := hex.EncodeToString(sig.Sum(nil))
-		fmt.Println(body, signedMsg, conf.ApiKey, conf.ApiSecret)
 		r.Header.Set("X-API-SIGN", signedMsg)
 		r.Header.Set("X-API-KEY", conf.ApiKey)
 		return nil
@@ -56,7 +55,7 @@ func (c *FixedFloat) SetDebug(enable bool) {
 
 func (c *FixedFloat) GetCurrencies() (currencies []instantswap.Currency, err error) {
 	var r []byte
-	r, err = c.client.Do(API_BASE, http.MethodGet, "getCurrencies", "", false)
+	r, err = c.client.Do(API_BASE, http.MethodPost, "ccies", "", false)
 	if err != nil {
 		return nil, err
 	}
@@ -65,45 +64,102 @@ func (c *FixedFloat) GetCurrencies() (currencies []instantswap.Currency, err err
 	currencies = make([]instantswap.Currency, len(ffCurrs))
 	for i, ffCurr := range ffCurrs {
 		currencies[i] = instantswap.Currency{
-			Name:   ffCurr.Currency,
-			Symbol: ffCurr.Symbol,
+			Name:   ffCurr.Name,
+			Symbol: ffCurr.Code,
 		}
 	}
 	return currencies, err
 }
 
 func (c *FixedFloat) GetCurrenciesToPair(from string) (currencies []instantswap.Currency, err error) {
-	return nil, err
+	var r []byte
+	r, err = c.client.Do(API_BASE, http.MethodPost, "ccies", "", false)
+	if err != nil {
+		return nil, err
+	}
+	var ffCurrs []Currency
+	err = parseResponseData(r, &ffCurrs)
+	for _, ffCurr := range ffCurrs {
+		if strings.ToLower(from) != strings.ToLower(ffCurr.Code) {
+			currencies = append(currencies, instantswap.Currency{
+				Name:   ffCurr.Name,
+				Symbol: ffCurr.Code,
+			})
+		}
+	}
+	return currencies, err
+}
+
+func buildBody(data interface{}) string {
+	if data == nil {
+		return ""
+	}
+	body, _ := json.Marshal(data)
+	return string(body)
 }
 
 // GetExchangeRateInfo get estimate on the amount for the exchange.
 func (c *FixedFloat) GetExchangeRateInfo(vars instantswap.ExchangeRateRequest) (res instantswap.ExchangeRateInfo, err error) {
-	var form = make(url.Values)
-	form.Set("fromCurrency", vars.From)
-	form.Set("toCurrency", vars.To)
-	form.Set("type", "fixed")
-	form.Set("fromQty", fmt.Sprintf("%.8f", vars.Amount))
+	f := PriceReq{
+		FromCcy:   vars.From,
+		ToCcy:     vars.To,
+		Amount:    vars.Amount,
+		Direction: "from",
+		Type:      "fixed",
+	}
 	var r []byte
-	r, err = c.client.Do(API_BASE, "POST", "getPrice", form.Encode(), false)
+	r, err = c.client.Do(API_BASE, http.MethodPost, "price", buildBody(f), false)
 	if err != nil {
 		return res, err
 	}
-	fmt.Println(string(r), err)
-	return
+	var priceRes PriceResult
+	err = parseResponseData(r, &priceRes)
+	if err != nil {
+		return res, err
+	}
+	return instantswap.ExchangeRateInfo{
+		Min:             priceRes.From.Min,
+		Max:             priceRes.From.Max,
+		ExchangeRate:    priceRes.To.Rate,
+		EstimatedAmount: priceRes.To.Amount,
+		MaxOrder:        0,
+		Signature:       "",
+	}, nil
 }
 
-// EstimateAmount get estimate on the amount for the exchange.
-func (c *FixedFloat) QueryRates(vars interface{}) (res []instantswap.QueryRate, err error) {
-	return res, fmt.Errorf("not supported")
-}
-func (c *FixedFloat) QueryActiveCurrencies(vars interface{}) (res []instantswap.ActiveCurr, err error) {
-	return
-}
-func (c *FixedFloat) QueryLimits(fromCurr, toCurr string) (res instantswap.QueryLimits, err error) {
-	return
-}
 func (c *FixedFloat) CreateOrder(vars instantswap.CreateOrder) (res instantswap.CreateResultInfo, err error) {
-	return
+	var f = CreateOrderRequest{
+		FromCcy:   vars.FromCurrency,
+		ToCcy:     vars.ToCurrency,
+		Amount:    vars.InvoicedAmount,
+		Direction: "from",
+		Type:      "fixed",
+		ToAddress: vars.Destination,
+	}
+	var r []byte
+	r, err = c.client.Do(API_BASE, http.MethodPost, "create", buildBody(f), false)
+	if err != nil {
+		return res, err
+	}
+	var orderRes OrderResponse
+	err = parseResponseData(r, &orderRes)
+	if err != nil {
+		return res, err
+	}
+	return instantswap.CreateResultInfo{
+		ChargedFee:     0,
+		Destination:    orderRes.From.Address,
+		ExchangeRate:   orderRes.From.Amount / orderRes.To.Amount,
+		FromCurrency:   orderRes.From.Code,
+		InvoicedAmount: orderRes.From.Amount,
+		OrderedAmount:  orderRes.To.Amount,
+		ToCurrency:     orderRes.To.Code,
+		UUID:           orderRes.Id,
+		DepositAddress: orderRes.From.Address,
+		Expires:        0,
+		ExtraID:        orderRes.Token,
+		PayoutExtraID:  "",
+	}, nil
 }
 
 // UpdateOrder accepts orderID value and more if needed per lib.
@@ -115,38 +171,60 @@ func (c *FixedFloat) CancelOrder(orderID string) (res string, err error) {
 }
 
 // OrderInfo accepts string of orderID value.
-func (c *FixedFloat) OrderInfo(orderID string) (res instantswap.OrderInfoResult, err error) {
-	return
-}
-
-// EstimateAmount get estimate on the amount for the exchange.
-func (c *FixedFloat) EstimateAmount(vars interface{}) (res instantswap.EstimateAmount, err error) {
-	return
+func (c *FixedFloat) OrderInfo(orderID string, extraIds ...string) (res instantswap.OrderInfoResult, err error) {
+	if len(extraIds) == 0 {
+		return res, fmt.Errorf("fetching fixedfloat order require order token")
+	}
+	var f = struct {
+		Id    string `json:"id"`
+		Token string `json:"token"`
+	}{
+		Id:    orderID,
+		Token: extraIds[0],
+	}
+	var r []byte
+	r, err = c.client.Do(API_BASE, http.MethodPost, "order", buildBody(f), false)
+	if err != nil {
+		return res, err
+	}
+	var orderRes OrderResponse
+	err = parseResponseData(r, &orderRes)
+	if err != nil {
+		return res, err
+	}
+	var txId string
+	if orderRes.To.Tx.Id != nil {
+		txId, _ = orderRes.To.Tx.Id.(string)
+	}
+	return instantswap.OrderInfoResult{
+		Expires:        0,
+		LastUpdate:     "",
+		ReceiveAmount:  orderRes.To.Amount,
+		TxID:           txId,
+		Status:         orderRes.Status,
+		InternalStatus: GetLocalStatus(orderRes.Status),
+		Confirmations:  "",
+	}, nil
 }
 
 // GetLocalStatus translate local status to instantswap.Status.
-func GetLocalStatus(status string) (iStatus int) {
-	status = strings.ToLower(status)
+func GetLocalStatus(status string) (iStatus instantswap.Status) {
 	switch status {
-	case "wait":
-		return 2
-	case "confirmation":
-		return 3
-	case "confirmed":
-		return 4
-	case "exchanging":
-		return 9
-	case "sending", "sending_confirmation":
-		return 10
-	case "success":
-		return 1
-	case "overdue":
-		return 7
-	case "error":
-		return 11
-	case "refunded":
-		return 5
+	case "NEW":
+		return instantswap.OrderStatusWaitingForDeposit
+	case "PENDING":
+		return instantswap.OrderStatusDepositReceived
+	case "EXCHANGE":
+		return instantswap.OrderStatusExchanging
+	case "WITHDRAW":
+		return instantswap.OrderStatusSending
+	case "DONE":
+		return instantswap.OrderStatusCompleted
+	case "EXPIRED":
+		return instantswap.OrderStatusExpired
+	case "EMERGENCY":
+		return instantswap.OrderStatusFailed
 	default:
-		return 0
+		return instantswap.OrderStatusUnknown
 	}
 }

@@ -248,7 +248,7 @@ func (c *ChangeNow) CancelOrder(oId string) (res string, err error) {
 }
 
 // OrderInfo get information on orderid/uuid.
-func (c *ChangeNow) OrderInfo(orderID string) (res instantswap.OrderInfoResult, err error) {
+func (c *ChangeNow) OrderInfo(orderID string, extraIds ...string) (res instantswap.OrderInfoResult, err error) {
 	r, err := c.client.Do(API_BASE, "GET", "transactions/"+orderID+"/"+c.conf.ApiKey, "", false)
 	if err != nil {
 		err = errors.New(LIBNAME + ":error: " + err.Error())

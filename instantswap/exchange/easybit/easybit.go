@@ -171,7 +171,7 @@ func (c *EasyBit) CancelOrder(orderID string) (res string, err error) {
 	return
 }
 
-func (c *EasyBit) OrderInfo(orderID string) (res instantswap.OrderInfoResult, err error) {
+func (c *EasyBit) OrderInfo(orderID string, extraIds ...string) (res instantswap.OrderInfoResult, err error) {
 	r, err := c.client.Do(API_BASE, http.MethodGet,
 		fmt.Sprintf("orders?id=%s", orderID), "", false)
 	if err != nil {
