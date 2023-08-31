@@ -15,7 +15,7 @@ type Currency struct {
 	Name           string      `json:"name"`
 	HasMemo        bool        `json:"hasMemo"`
 	FixedOnly      interface{} `json:"fixedOnly"`
-	VariableOnly   bool        `json:"variableOnly"`
+	VariableOnly   interface{} `json:"variableOnly"`
 	DepositOffline interface{} `json:"depositOffline"`
 	SettleOffline  interface{} `json:"settleOffline"`
 }

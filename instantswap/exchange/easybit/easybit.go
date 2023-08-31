@@ -79,7 +79,6 @@ func (c *EasyBit) GetCurrenciesToPair(from string) (currencies []instantswap.Cur
 	if err != nil {
 		return nil, err
 	}
-	currencies = make([]instantswap.Currency, len(ebCurrencies))
 	for _, currency := range ebCurrencies {
 		if strings.ToLower(from) != strings.ToLower(currency.Currency) {
 			currencies = append(currencies, instantswap.Currency{
@@ -94,6 +93,7 @@ func (c *EasyBit) GetCurrenciesToPair(from string) (currencies []instantswap.Cur
 func (c *EasyBit) GetExchangeRateInfo(vars instantswap.ExchangeRateRequest) (res instantswap.ExchangeRateInfo, err error) {
 	r, err := c.client.Do(API_BASE, "GET",
 		fmt.Sprintf("rate?send=%s&receive=%s&amount=%.8f", vars.From, vars.To, vars.Amount), "", false)
+	fmt.Println(string(r))
 	if err != nil {
 		return res, err
 	}
@@ -106,7 +106,7 @@ func (c *EasyBit) GetExchangeRateInfo(vars instantswap.ExchangeRateRequest) (res
 	return instantswap.ExchangeRateInfo{
 		Min:             utils.StrToFloat(pairInfo.MinimumAmount),
 		Max:             utils.StrToFloat(pairInfo.MaximumAmount),
-		ExchangeRate:    utils.StrToFloat(rate.Rate),
+		ExchangeRate:    1 / utils.StrToFloat(rate.Rate),
 		EstimatedAmount: utils.StrToFloat(rate.ReceiveAmount),
 		MaxOrder:        0,
 		Signature:       "",
@@ -124,9 +124,6 @@ func (c *EasyBit) pairInfo(vars instantswap.ExchangeRateRequest) (PairInfo, erro
 	return pair, err
 }
 
-func (c *EasyBit) QueryRates(vars interface{}) (res []instantswap.QueryRate, err error) {
-	return
-}
 func (c *EasyBit) QueryLimits(fromCurr, toCurr string) (res instantswap.QueryLimits, err error) {
 	return
 }

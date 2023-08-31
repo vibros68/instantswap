@@ -75,7 +75,11 @@ func (z *MoneroExplorer) GetTxsForAddress(address string, limit int, viewKey str
 func (z *MoneroExplorer) VerifyTransaction(verifier blockexplorer.TxVerifyRequest) (tx *blockexplorer.ITransaction, err error) {
 	r, err := z.client.Do("GET", fmt.Sprintf("outputs?txhash=%s&address=%s&viewkey=%s&txprove=0",
 		verifier.TxId, verifier.Address, verifier.ViewKey), "", false)
+	if err != nil {
+		return nil, err
+	}
 	var txVerify TxVerifier
+	fmt.Println(string(r))
 	err = parseMoneroResponseData(r, &txVerify)
 	if err != nil {
 		return nil, err
