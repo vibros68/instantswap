@@ -393,7 +393,7 @@ func (c *FlypMe) CancelOrder(orderId string) (res string, err error) {
 
 // OrderInfo accepts string of orderID value and return
 // its information
-func (c *FlypMe) OrderInfo(orderID string) (res instantswap.OrderInfoResult, err error) {
+func (c *FlypMe) OrderInfo(orderID string, extraIds ...string) (res instantswap.OrderInfoResult, err error) {
 	getOrderInfo := UUID{
 		UUID: orderID,
 	}

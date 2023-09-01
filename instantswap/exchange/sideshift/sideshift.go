@@ -146,9 +146,10 @@ func (s *SideShift) CancelOrder(orderID string) (res string, err error) {
 	return res, fmt.Errorf("not supported")
 }
 
-func (s *SideShift) OrderInfo(orderID string) (res instantswap.OrderInfoResult, err error) {
+func (s *SideShift) OrderInfo(orderID string, extraIds ...string) (res instantswap.OrderInfoResult, err error) {
 	r, err := s.client.Do(API_BASE, http.MethodGet,
 		fmt.Sprintf("shifts/%s", orderID), "", false)
+	fmt.Println(string(r))
 	if err != nil {
 		return res, err
 	}
@@ -197,7 +198,7 @@ func (s *SideShift) GetExchangeRateInfo(vars instantswap.ExchangeRateRequest) (r
 	return instantswap.ExchangeRateInfo{
 		Min:             utils.StrToFloat(pair.Min),
 		Max:             utils.StrToFloat(pair.Max),
-		ExchangeRate:    utils.StrToFloat(quote.Rate),
+		ExchangeRate:    1 / utils.StrToFloat(quote.Rate),
 		EstimatedAmount: utils.StrToFloat(quote.SettleAmount),
 		MaxOrder:        0,
 		Signature:       quote.Id,
@@ -226,9 +227,7 @@ func GetLocalStatus(status string) instantswap.Status {
 		return instantswap.OrderStatusDepositReceived
 	case "processing":
 		return instantswap.OrderStatusDepositConfirmed
-	case "review":
-		return instantswap.OrderStatusUnknown
-	case "settling":
+	case "settling", "review":
 		return instantswap.OrderStatusExchanging
 	case "settled":
 		return instantswap.OrderStatusCompleted

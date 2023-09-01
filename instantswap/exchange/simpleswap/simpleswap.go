@@ -11,7 +11,7 @@ import (
 )
 
 const (
-	API_BASE = "https://api.simpleswap.io/v1/"
+	API_BASE = "https://api.simpleswap.io/"
 	LIBNAME  = "simpleswap"
 )
 
@@ -97,7 +97,12 @@ func (c *SimpleSwap) GetExchangeRateInfo(vars instantswap.ExchangeRateRequest) (
 	if response == "null" {
 		return res, fmt.Errorf("invalid request")
 	}
-	estimatedAmount := utils.StrToFloat(response)
+	var estimatedAmountStr string
+	err = json.Unmarshal(r, &estimatedAmountStr)
+	if err != nil {
+		return res, err
+	}
+	estimatedAmount := utils.StrToFloat(estimatedAmountStr)
 	rate := vars.Amount / estimatedAmount
 	return instantswap.ExchangeRateInfo{
 		Min:             0,
@@ -109,16 +114,12 @@ func (c *SimpleSwap) GetExchangeRateInfo(vars instantswap.ExchangeRateRequest) (
 	}, err
 }
 
-func (c *SimpleSwap) QueryRates(vars interface{}) (res []instantswap.QueryRate, err error) {
-	return res, fmt.Errorf("not supported")
-}
-
 func (c *SimpleSwap) CreateOrder(vars instantswap.CreateOrder) (res instantswap.CreateResultInfo, err error) {
 	var form = CreateExchange{
 		CurrencyFrom:      strings.ToLower(vars.FromCurrency),
 		CurrencyTo:        strings.ToLower(vars.ToCurrency),
 		Fixed:             false,
-		Amount:            vars.OrderedAmount,
+		Amount:            vars.InvoicedAmount,
 		AddressTo:         vars.Destination,
 		ExtraIdTo:         "",
 		UserRefundAddress: vars.RefundAddress,
@@ -152,7 +153,7 @@ func (c *SimpleSwap) CreateOrder(vars instantswap.CreateOrder) (res instantswap.
 		OrderedAmount:  orderedAmount,
 		ToCurrency:     order.CurrencyTo,
 		UUID:           order.Id,
-		DepositAddress: order.UserRefundAddress,
+		DepositAddress: order.AddressFrom,
 		Expires:        0,
 		ExtraID:        "",
 		PayoutExtraID:  "",
@@ -170,7 +171,7 @@ func (c *SimpleSwap) CancelOrder(orderID string) (res string, err error) {
 }
 
 // OrderInfo accepts orderID value and more if needed per lib.
-func (c *SimpleSwap) OrderInfo(orderID string) (res instantswap.OrderInfoResult, err error) {
+func (c *SimpleSwap) OrderInfo(orderID string, extraIds ...string) (res instantswap.OrderInfoResult, err error) {
 	var r []byte
 	r, err = c.client.Do(API_BASE, "GET",
 		fmt.Sprintf("get_exchange?id=%s&api_key=%s", orderID, c.conf.ApiKey),
@@ -194,16 +195,9 @@ func (c *SimpleSwap) OrderInfo(orderID string) (res instantswap.OrderInfoResult,
 	}, nil
 }
 
-func (c *SimpleSwap) EstimateAmount(vars interface{}) (res instantswap.EstimateAmount, err error) {
-	return
-}
-
 func parseResponseData(data []byte, obj interface{}) error {
 	var simpleSwapErr Error
 	err := json.Unmarshal(data, &simpleSwapErr)
-	/*if err != nil {
-		return fmt.Errorf(string(data))
-	}*/
 	if err == nil && simpleSwapErr.Code > 0 && len(simpleSwapErr.Message) > 0 {
 		return fmt.Errorf(simpleSwapErr.Message)
 	}
