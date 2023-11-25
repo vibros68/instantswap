@@ -149,7 +149,6 @@ func (s *SideShift) CancelOrder(orderID string) (res string, err error) {
 func (s *SideShift) OrderInfo(orderID string, extraIds ...string) (res instantswap.OrderInfoResult, err error) {
 	r, err := s.client.Do(API_BASE, http.MethodGet,
 		fmt.Sprintf("shifts/%s", orderID), "", false)
-	fmt.Println(string(r))
 	if err != nil {
 		return res, err
 	}
