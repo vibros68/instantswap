@@ -140,7 +140,7 @@ func (c *GoDEX) GetExchangeRateInfo(vars instantswap.ExchangeRateRequest) (res i
 	return instantswap.ExchangeRateInfo{
 		Min:             utils.StrToFloat(info.MinAmount.String()),
 		Max:             utils.StrToFloat(info.MaxAmount.String()),
-		ExchangeRate:    1 / utils.StrToFloat(info.Rate.String()),
+		ExchangeRate:    utils.StrToFloat(info.Rate.String()),
 		EstimatedAmount: estimatedAmount,
 		MaxOrder:        0,
 		Signature:       "",

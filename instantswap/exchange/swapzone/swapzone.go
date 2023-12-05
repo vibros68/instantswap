@@ -108,7 +108,7 @@ func (c *SwapZone) GetExchangeRateInfo(vars instantswap.ExchangeRateRequest) (re
 	res.Min = exchangeRate.MinAmount
 	res.Max = exchangeRate.MaxAmount
 	res.EstimatedAmount = exchangeRate.AmountTo
-	res.ExchangeRate = exchangeRate.AmountFrom / exchangeRate.AmountTo
+	res.ExchangeRate = exchangeRate.AmountTo / exchangeRate.AmountFrom
 	res.Signature = exchangeRate.QuotaId
 	return
 }

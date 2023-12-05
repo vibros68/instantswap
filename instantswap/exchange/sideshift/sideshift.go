@@ -197,7 +197,7 @@ func (s *SideShift) GetExchangeRateInfo(vars instantswap.ExchangeRateRequest) (r
 	return instantswap.ExchangeRateInfo{
 		Min:             utils.StrToFloat(pair.Min),
 		Max:             utils.StrToFloat(pair.Max),
-		ExchangeRate:    1 / utils.StrToFloat(quote.Rate),
+		ExchangeRate:    utils.StrToFloat(quote.Rate),
 		EstimatedAmount: utils.StrToFloat(quote.SettleAmount),
 		MaxOrder:        0,
 		Signature:       quote.Id,

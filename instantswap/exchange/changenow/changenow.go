@@ -102,7 +102,7 @@ func (c *ChangeNow) GetExchangeRateInfo(vars instantswap.ExchangeRateRequest) (r
 		err = errors.New(LIBNAME + ":error: " + err.Error())
 		return
 	}
-	rate := vars.Amount / estimate.EstimatedAmount
+	rate := estimate.EstimatedAmount / vars.Amount
 
 	res = instantswap.ExchangeRateInfo{
 		ExchangeRate:    rate,

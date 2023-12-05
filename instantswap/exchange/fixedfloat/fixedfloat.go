@@ -120,7 +120,7 @@ func (c *FixedFloat) GetExchangeRateInfo(vars instantswap.ExchangeRateRequest) (
 	return instantswap.ExchangeRateInfo{
 		Min:             priceRes.From.Min,
 		Max:             priceRes.From.Max,
-		ExchangeRate:    priceRes.To.Rate,
+		ExchangeRate:    priceRes.From.Rate,
 		EstimatedAmount: priceRes.To.Amount,
 		MaxOrder:        0,
 		Signature:       "",

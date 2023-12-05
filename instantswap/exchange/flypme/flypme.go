@@ -132,21 +132,17 @@ func (c *FlypMe) GetExchangeRateInfo(vars instantswap.ExchangeRateRequest) (res 
 		err = errors.New(LIBNAME + ":error: rate not found for " + pair + " pair")
 		return
 	}
-
 	exchangeRate, err := strconv.ParseFloat(rate.Value, 64)
 	if err != nil {
 		err = errors.New(LIBNAME + ":error: " + err.Error())
 		return
 	}
-	rateFinal := 1 / exchangeRate
-	min := limits.Min * rateFinal * 1.5
-	max := limits.Max * rateFinal
 
 	res = instantswap.ExchangeRateInfo{
-		ExchangeRate:    rateFinal,
-		Min:             min,
-		Max:             max,
-		EstimatedAmount: (vars.Amount / rateFinal),
+		ExchangeRate:    exchangeRate,
+		Min:             limits.Min / exchangeRate,
+		Max:             limits.Max / exchangeRate,
+		EstimatedAmount: vars.Amount * exchangeRate,
 	}
 
 	return
@@ -223,7 +219,7 @@ func (c *FlypMe) QueryActiveCurrencies(vars interface{}) (res []instantswap.Acti
 
 // QueryLimits Get Exchange Rates (from, to).
 func (c *FlypMe) QueryLimits(fromCurr, toCurr string) (res instantswap.QueryLimits, err error) {
-
+	// Get max and min limits in {to_currency}.
 	r, err := c.client.Do(API_BASE, "GET", "order/limits/"+fromCurr+"/"+toCurr, "", false)
 	if err != nil {
 		err = errors.New(LIBNAME + ":error: " + err.Error())
