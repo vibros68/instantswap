@@ -93,7 +93,6 @@ func (c *EasyBit) GetCurrenciesToPair(from string) (currencies []instantswap.Cur
 func (c *EasyBit) GetExchangeRateInfo(vars instantswap.ExchangeRateRequest) (res instantswap.ExchangeRateInfo, err error) {
 	r, err := c.client.Do(API_BASE, "GET",
 		fmt.Sprintf("rate?send=%s&receive=%s&amount=%.8f", vars.From, vars.To, vars.Amount), "", false)
-	fmt.Println(string(r))
 	if err != nil {
 		return res, err
 	}
@@ -106,7 +105,7 @@ func (c *EasyBit) GetExchangeRateInfo(vars instantswap.ExchangeRateRequest) (res
 	return instantswap.ExchangeRateInfo{
 		Min:             utils.StrToFloat(pairInfo.MinimumAmount),
 		Max:             utils.StrToFloat(pairInfo.MaximumAmount),
-		ExchangeRate:    1 / utils.StrToFloat(rate.Rate),
+		ExchangeRate:    utils.StrToFloat(rate.Rate),
 		EstimatedAmount: utils.StrToFloat(rate.ReceiveAmount),
 		MaxOrder:        0,
 		Signature:       "",
