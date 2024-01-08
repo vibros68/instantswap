@@ -64,8 +64,3 @@ type Order struct {
 	RefundAddress  string              `json:"refund_address"`
 	RefundExtraId  string              `json:"refund_extra_id"`
 }
-
-type Error struct {
-	Code    int    `json:"code"`
-	Message string `json:"message"`
-}
