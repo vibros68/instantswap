@@ -209,12 +209,6 @@ func (s *stealthex) EstimateAmount(vars interface{}) (res instantswap.EstimateAm
 }
 
 func parseResponseData(data []byte, obj interface{}) error {
-	var err Error
-	if json.Unmarshal(data, &err) == nil {
-		if err.Code > 0 {
-			return fmt.Errorf(err.Message)
-		}
-	}
 	return json.Unmarshal(data, obj)
 }
 

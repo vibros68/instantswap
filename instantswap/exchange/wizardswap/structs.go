@@ -68,3 +68,59 @@ type OrderRequest struct {
 	RefundExtraId string  `json:"refund_extra_id"`
 	ApiKey        string  `json:"api_key"`
 }
+
+type Exchange struct {
+	Id             string              `json:"id"`
+	Type           string              `json:"type"`
+	Timestamp      string              `json:"timestamp"`
+	UpdatedAt      string              `json:"updated_at"`
+	CurrencyFrom   string              `json:"currency_from"`
+	CurrencyTo     string              `json:"currency_to"`
+	AmountFrom     float64             `json:"amount_from,string"`
+	ExpectedAmount float64             `json:"expected_amount,string"`
+	AmountTo       float64             `json:"amount_to,string"`
+	AddressFrom    string              `json:"address_from"`
+	AddressTo      string              `json:"address_to"`
+	ExtraIdFrom    string              `json:"extra_id_from"`
+	ExtraIdTo      string              `json:"extra_id_to"`
+	TxFrom         string              `json:"tx_from"`
+	TxTo           string              `json:"tx_to"`
+	Status         string              `json:"status"`
+	Currencies     map[string][]string `json:"currencies"`
+	RefundAddress  string              `json:"refund_address"`
+	RefundExtraId  string              `json:"refund_extra_id"`
+}
+
+type ExchangeInfo struct {
+	Id             string             `json:"id"`
+	Timestamp      string             `json:"timestamp"`
+	UpdatedAt      string             `json:"updated_at"`
+	CurrencyFrom   string             `json:"currency_from"`
+	CurrencyTo     string             `json:"currency_to"`
+	AmountFrom     float64            `json:"amount_from,string"`
+	AmountTo       float64            `json:"amount_to,string"`
+	ExpectedAmount float64            `json:"expected_amount,string"`
+	AddressFrom    string             `json:"address_from"`
+	AddressTo      string             `json:"address_to"`
+	ExtraIdFrom    string             `json:"extra_id_from"`
+	ExtraIdTo      string             `json:"extra_id_to"`
+	TxFrom         string             `json:"tx_from"`
+	TxTo           string             `json:"tx_to"`
+	Status         string             `json:"status"`
+	RefundAddress  string             `json:"refund_address"`
+	RefundExtraId  string             `json:"refund_extra_id"`
+	Currencies     []CurrencyExchange `json:"currencies"`
+}
+
+type CurrencyExchange struct {
+	Symbol            string        `json:"symbol"`
+	HasExtraId        bool          `json:"has_extra_id"`
+	Name              string        `json:"name"`
+	WarningsFrom      []interface{} `json:"warnings_from"`
+	WarningsTo        []interface{} `json:"warnings_to"`
+	ValidationAddress string        `json:"validation_address"`
+	ValidationExtra   interface{}   `json:"validation_extra"`
+	AddressExplorer   interface{}   `json:"address_explorer"`
+	TxExplorer        string        `json:"tx_explorer"`
+	Image             string        `json:"image"`
+}
