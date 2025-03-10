@@ -10,10 +10,23 @@ import (
 	"strings"
 )
 
-type exchCx struct {
+const LIBNAME = "exchcx"
+
+func init() {
+	instantswap.RegisterExchange(LIBNAME, func(config instantswap.ExchangeConfig) (instantswap.IDExchange, error) {
+		return New(config)
+	})
 }
 
-func (e *exchCx) Do(req *http.Request, resObj any) error {
+// New return a exchCx api client
+func New(conf instantswap.ExchangeConfig) (*ExchCx, error) {
+	return &ExchCx{}, nil
+}
+
+type ExchCx struct {
+}
+
+func (e *ExchCx) Do(req *http.Request, resObj any) error {
 	client := &http.Client{}
 	req.Header.Set("X-Requested-With", "XMLHttpRequest")
 	resp, err := client.Do(req)
@@ -33,11 +46,11 @@ func (e *exchCx) Do(req *http.Request, resObj any) error {
 	return json.Unmarshal(body, resObj)
 }
 
-func (e *exchCx) path(path string) string {
+func (e *ExchCx) path(path string) string {
 	return fmt.Sprintf("https://exch.cx/api/%s", path)
 }
 
-func (e *exchCx) GetCurrencies() (currencies []instantswap.Currency, err error) {
+func (e *ExchCx) GetCurrencies() (currencies []instantswap.Currency, err error) {
 	req, err := http.NewRequest(http.MethodGet, e.path("volume"), nil)
 	if err != nil {
 		return
@@ -50,12 +63,13 @@ func (e *exchCx) GetCurrencies() (currencies []instantswap.Currency, err error) 
 	for currency, _ := range volumnMap {
 		currencies = append(currencies, instantswap.Currency{
 			Symbol: currency,
+			Name:   currency,
 		})
 	}
 	return
 }
 
-func (e *exchCx) GetCurrenciesToPair(from string) (currencies []instantswap.Currency, err error) {
+func (e *ExchCx) GetCurrenciesToPair(from string) (currencies []instantswap.Currency, err error) {
 	req, err := http.NewRequest(http.MethodGet, e.path("rates"), nil)
 	if err != nil {
 		return
@@ -77,11 +91,11 @@ func (e *exchCx) GetCurrenciesToPair(from string) (currencies []instantswap.Curr
 	return
 }
 
-func (e *exchCx) QueryLimits(fromCurr, toCurr string) (res instantswap.QueryLimits, err error) {
+func (e *ExchCx) QueryLimits(fromCurr, toCurr string) (res instantswap.QueryLimits, err error) {
 	return
 }
 
-func (e *exchCx) CreateOrder(vars instantswap.CreateOrder) (res instantswap.CreateResultInfo, err error) {
+func (e *ExchCx) CreateOrder(vars instantswap.CreateOrder) (res instantswap.CreateResultInfo, err error) {
 	var params = url.Values{}
 	params.Set("from_currency", vars.FromCurrency)
 	params.Set("to_currency", vars.ToCurrency)
@@ -121,15 +135,15 @@ func (e *exchCx) CreateOrder(vars instantswap.CreateOrder) (res instantswap.Crea
 	return
 }
 
-func (e *exchCx) UpdateOrder(vars interface{}) (res instantswap.UpdateOrderResultInfo, err error) {
+func (e *ExchCx) UpdateOrder(vars interface{}) (res instantswap.UpdateOrderResultInfo, err error) {
 	return
 }
 
-func (e *exchCx) CancelOrder(orderID string) (res string, err error) {
+func (e *ExchCx) CancelOrder(orderID string) (res string, err error) {
 	return
 }
 
-func (e *exchCx) getOrder(orderId string) (*Order, error) {
+func (e *ExchCx) getOrder(orderId string) (*Order, error) {
 	req, err := http.NewRequest(http.MethodGet, e.path("order?orderid="+orderId), nil)
 	if err != nil {
 		return nil, err
@@ -142,7 +156,7 @@ func (e *exchCx) getOrder(orderId string) (*Order, error) {
 	return &order, nil
 }
 
-func (e *exchCx) OrderInfo(orderID string, extraIds ...string) (res instantswap.OrderInfoResult, err error) {
+func (e *ExchCx) OrderInfo(orderID string, extraIds ...string) (res instantswap.OrderInfoResult, err error) {
 	order, err := e.getOrder(orderID)
 	if err != nil {
 		return
@@ -159,7 +173,7 @@ func (e *exchCx) OrderInfo(orderID string, extraIds ...string) (res instantswap.
 	return
 }
 
-func (e *exchCx) GetExchangeRateInfo(vars instantswap.ExchangeRateRequest) (res instantswap.ExchangeRateInfo, err error) {
+func (e *ExchCx) GetExchangeRateInfo(vars instantswap.ExchangeRateRequest) (res instantswap.ExchangeRateInfo, err error) {
 	req, err := http.NewRequest(http.MethodGet, e.path("rates"), nil)
 	if err != nil {
 		return

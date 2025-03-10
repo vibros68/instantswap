@@ -8,11 +8,23 @@ type Volume struct {
 	Volume string `json:"volume"`
 }
 
-type Rate struct {
+type T struct {
 	NetworkFee struct {
 		F string `json:"f"`
 		M string `json:"m"`
 		S string `json:"s"`
+	} `json:"network_fee"`
+	Rate     string  `json:"rate"`
+	RateMode string  `json:"rate_mode"`
+	Reserve  float64 `json:"reserve"`
+	SvcFee   string  `json:"svc_fee"`
+}
+
+type Rate struct {
+	NetworkFee struct {
+		F any `json:"f"`
+		M any `json:"m"`
+		S any `json:"s"`
 	} `json:"network_fee"`
 	Rate     float64 `json:"rate,string"`
 	RateMode string  `json:"rate_mode"`
@@ -27,7 +39,7 @@ type Order struct {
 	FromCurrency          string   `json:"from_currency"`
 	MaxInput              string   `json:"max_input"`
 	MinInput              string   `json:"min_input"`
-	NetworkFee            int      `json:"network_fee"`
+	NetworkFee            float64  `json:"network_fee,string"`
 	OrderId               string   `json:"orderid"`
 	Rate                  float64  `json:"rate,string"`
 	RateMode              string   `json:"rate_mode"`
