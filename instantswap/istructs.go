@@ -133,6 +133,8 @@ type OrderInfoResult struct {
 	LastUpdate     string // should be datetime object
 	ReceiveAmount  float64
 	TxID           string
+	DepositTx      string
+	RefundTx       string
 	Status         string
 	InternalStatus Status
 	Confirmations  string
