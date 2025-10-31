@@ -20,22 +20,6 @@ type Error struct {
 	Error string `json:"error"`
 }
 
-//- trade_id: the trade ID with us;
-//- date: date and time of creation;
-//- ticker_from: ticker of the coin to be sold;
-//- ticker_to: ticker of the coin to be bought;
-//- coin_from: name of coin to be sold;
-//- coin_to: name of coin to be bought;
-//- network_from: network of coin to be sold;
-//- network_to: network of coin to be bought;
-//- amount_from: amount of coin to be sold;
-//- amount_to: amount of coin to be bought;
-//- provider: exchange with the best rate;
-//- fixed: rate type for the best rate, True for fixed and False for floating;
-//- status: status of the trade;
-//- quotes: list of all the other quotes generated, with their KYC rating and waste(spread) in percentage;
-//- payment: True or False, depending if it is a standard swap or payment;
-
 type Rate struct {
 	TradeId     string  `json:"trade_id"`
 	Date        string  `json:"date"`
@@ -110,7 +94,8 @@ type Trade struct {
 			Type       string `json:"type"`
 			Tos        string `json:"tos"`
 		} `json:"support"`
-		ExpiresAt string `json:"expiresAt"`
+		ExpiresAt string  `json:"expiresAt"`
+		Quotes    []Quote `json:"quotes"`
 	} `json:"quotes"`
 	Details          TradeDetail `json:"details"`
 	AffiliatePartner string      `json:"affiliate_partner"`

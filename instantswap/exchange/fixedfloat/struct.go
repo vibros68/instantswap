@@ -6,8 +6,8 @@ import (
 )
 
 type response struct {
-	Code int    `json:"code"`
-	Msg  string `json:"msg"`
+	Code interface{} `json:"code"`
+	Msg  string      `json:"msg"`
 	Data json.RawMessage
 }
 
@@ -17,11 +17,10 @@ func parseResponseData(r []byte, obj interface{}) error {
 	if err != nil {
 		return err
 	}
-	if err == nil && res.Code > 0 {
-		return fmt.Errorf(res.Msg)
+	if code, ok := res.Code.(float64); ok && code == 0 {
+		return json.Unmarshal(res.Data, obj)
 	}
-	err = json.Unmarshal(res.Data, obj)
-	return err
+	return fmt.Errorf(res.Msg)
 }
 
 type Currency struct {

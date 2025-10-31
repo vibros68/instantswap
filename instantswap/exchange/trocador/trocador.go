@@ -184,10 +184,10 @@ func (t *trocador) CreateOrder(vars instantswap.CreateOrder) (res instantswap.Cr
 		ChargedFee:     0,
 		Destination:    trade.AddressUser,
 		ExchangeRate:   trade.rate(),
-		FromCurrency:   trade.CoinFrom,
+		FromCurrency:   strings.ToUpper(trade.TickerFrom),
 		InvoicedAmount: trade.AmountFrom,
 		OrderedAmount:  trade.AmountTo,
-		ToCurrency:     trade.CoinTo,
+		ToCurrency:     strings.ToUpper(trade.TickerTo),
 		UUID:           trade.TradeId,
 		DepositAddress: trade.AddressProvider,
 		Expires:        0,
@@ -216,11 +216,15 @@ func (t *trocador) OrderInfo(orderID string, extraIds ...string) (res instantswa
 	if err != nil {
 		return
 	}
-	var trade Trade
-	err = parseResponseData(r, &trade)
+	var trades []Trade
+	err = parseResponseData(r, &trades)
 	if err != nil {
 		return
 	}
+	if len(trades) == 0 {
+		return res, fmt.Errorf("order not found")
+	}
+	trade := trades[0]
 
 	res = instantswap.OrderInfoResult{
 		Expires:        0,

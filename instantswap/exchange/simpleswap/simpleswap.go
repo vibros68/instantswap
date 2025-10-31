@@ -103,11 +103,10 @@ func (c *SimpleSwap) GetExchangeRateInfo(vars instantswap.ExchangeRateRequest) (
 		return res, err
 	}
 	estimatedAmount := utils.StrToFloat(estimatedAmountStr)
-	rate := vars.Amount / estimatedAmount
 	return instantswap.ExchangeRateInfo{
 		Min:             0,
 		Max:             0,
-		ExchangeRate:    rate,
+		ExchangeRate:    estimatedAmount / vars.Amount,
 		EstimatedAmount: estimatedAmount,
 		MaxOrder:        0,
 		Signature:       "",
