@@ -3,7 +3,7 @@ package stealthex
 import (
 	"encoding/json"
 	"fmt"
-	"github.com/crypto-power/instantswap/instantswap"
+	"github.com/vibros68/instantswap/instantswap"
 	"net/http"
 	"strings"
 )
@@ -22,6 +22,10 @@ func init() {
 	instantswap.RegisterExchange(LIBNAME, func(config instantswap.ExchangeConfig) (instantswap.IDExchange, error) {
 		return New(config)
 	})
+}
+
+func (s *stealthex) Name() string {
+	return LIBNAME
 }
 
 // SetDebug set enable/disable http request/response dump.

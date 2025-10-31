@@ -1,8 +1,8 @@
 package iblockexplorer
 
 import (
-	"github.com/crypto-power/instantswap/blockexplorer/global/clients/blockexplorerclient"
-	"github.com/crypto-power/instantswap/blockexplorer/global/interfaces/idaemon"
+	"github.com/vibros68/instantswap/blockexplorer/global/clients/blockexplorerclient"
+	"github.com/vibros68/instantswap/blockexplorer/global/interfaces/idaemon"
 )
 
 type Client struct {

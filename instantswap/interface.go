@@ -9,6 +9,7 @@ import (
 const TX_HASH_INTERNAL_TRANSFER = "Internal transfer"
 
 type IDExchange interface {
+	Name() string
 	// GetCurrencies returns current active currencies in the exchange
 	GetCurrencies() (currencies []Currency, err error)
 	// GetCurrenciesToPair return a list of available currencies for a specific currency

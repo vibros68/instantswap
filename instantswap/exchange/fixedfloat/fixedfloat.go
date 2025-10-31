@@ -9,7 +9,7 @@ import (
 	"net/http"
 	"strings"
 
-	"github.com/crypto-power/instantswap/instantswap"
+	"github.com/vibros68/instantswap/instantswap"
 )
 
 const (
@@ -46,6 +46,10 @@ func New(conf instantswap.ExchangeConfig) (*FixedFloat, error) {
 		return nil
 	})
 	return &FixedFloat{client: client, conf: &conf}, nil
+}
+
+func (c *FixedFloat) Name() string {
+	return LIBNAME
 }
 
 // SetDebug set enable/disable http request/response dump

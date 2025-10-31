@@ -2,10 +2,10 @@ package xmrexplorer
 
 import (
 	"fmt"
-	"github.com/crypto-power/instantswap/blockexplorer/global/utils"
+	"github.com/vibros68/instantswap/blockexplorer/global/utils"
 
-	"github.com/crypto-power/instantswap/blockexplorer"
-	"github.com/crypto-power/instantswap/blockexplorer/global/clients/blockexplorerclient"
+	"github.com/vibros68/instantswap/blockexplorer"
+	"github.com/vibros68/instantswap/blockexplorer/global/clients/blockexplorerclient"
 )
 
 const (

@@ -3,7 +3,7 @@ package exchcx
 import (
 	"encoding/json"
 	"fmt"
-	"github.com/crypto-power/instantswap/instantswap"
+	"github.com/vibros68/instantswap/instantswap"
 	"io"
 	"net/http"
 	"net/url"
@@ -44,6 +44,10 @@ func (e *ExchCx) Do(req *http.Request, resObj any) error {
 		return fmt.Errorf(exchErr.Error)
 	}
 	return json.Unmarshal(body, resObj)
+}
+
+func (e *ExchCx) Name() string {
+	return LIBNAME
 }
 
 func (e *ExchCx) path(path string) string {

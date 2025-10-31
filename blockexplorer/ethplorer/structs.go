@@ -6,7 +6,7 @@ import (
 	"math/big"
 	"strings"
 
-	"github.com/crypto-power/instantswap/blockexplorer"
+	"github.com/vibros68/instantswap/blockexplorer"
 )
 
 type Tx struct {

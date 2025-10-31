@@ -6,8 +6,8 @@ import (
 	"net/http"
 	"strings"
 
-	"github.com/crypto-power/instantswap/instantswap"
-	"github.com/crypto-power/instantswap/instantswap/utils"
+	"github.com/vibros68/instantswap/instantswap"
+	"github.com/vibros68/instantswap/instantswap/utils"
 )
 
 const (
@@ -46,6 +46,10 @@ func New(conf instantswap.ExchangeConfig) (*SideShift, error) {
 		return nil
 	})
 	return &SideShift{client: client, conf: &conf}, nil
+}
+
+func (s *SideShift) Name() string {
+	return LIBNAME
 }
 
 func (s *SideShift) GetCurrencies() (currencies []instantswap.Currency, err error) {

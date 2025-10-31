@@ -4,8 +4,8 @@ import (
 	"encoding/json"
 	"time"
 
-	"github.com/crypto-power/instantswap/blockexplorer"
-	"github.com/crypto-power/instantswap/blockexplorer/global/interfaces/idaemon"
+	"github.com/vibros68/instantswap/blockexplorer"
+	"github.com/vibros68/instantswap/blockexplorer/global/interfaces/idaemon"
 )
 
 const timeFormat = "2006-01-02 15:04:05"

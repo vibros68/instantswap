@@ -3,7 +3,7 @@ package wizardswap
 import (
 	"encoding/json"
 	"fmt"
-	"github.com/crypto-power/instantswap/instantswap"
+	"github.com/vibros68/instantswap/instantswap"
 	"net/http"
 	"strings"
 )
@@ -38,6 +38,10 @@ func New(conf instantswap.ExchangeConfig) (*wizardswap, error) {
 		return nil
 	})
 	return &wizardswap{client: client, conf: &conf}, nil
+}
+
+func (w *wizardswap) Name() string {
+	return LIBNAME
 }
 
 func (w *wizardswap) GetCurrencies() (currencies []instantswap.Currency, err error) {

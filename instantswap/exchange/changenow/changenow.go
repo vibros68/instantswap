@@ -8,7 +8,7 @@ import (
 	"strings"
 	"time"
 
-	"github.com/crypto-power/instantswap/instantswap"
+	"github.com/vibros68/instantswap/instantswap"
 )
 
 const (
@@ -37,6 +37,10 @@ type ChangeNow struct {
 	conf   *instantswap.ExchangeConfig
 	client *instantswap.Client
 	instantswap.IDExchange
+}
+
+func (c *ChangeNow) Name() string {
+	return LIBNAME
 }
 
 // SetDebug set enable/disable http request/response dump.

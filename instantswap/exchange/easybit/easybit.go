@@ -6,8 +6,8 @@ import (
 	"net/http"
 	"strings"
 
-	"github.com/crypto-power/instantswap/instantswap"
-	"github.com/crypto-power/instantswap/instantswap/utils"
+	"github.com/vibros68/instantswap/instantswap"
+	"github.com/vibros68/instantswap/instantswap/utils"
 )
 
 const (
@@ -42,6 +42,10 @@ type EasyBit struct {
 	client *instantswap.Client
 	conf   *instantswap.ExchangeConfig
 	instantswap.IDExchange
+}
+
+func (c *EasyBit) Name() string {
+	return LIBNAME
 }
 
 // SetDebug set enable/disable http request/response dump.

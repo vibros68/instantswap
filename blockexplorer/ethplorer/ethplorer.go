@@ -2,14 +2,14 @@ package ethplorer
 
 import (
 	"fmt"
-	"github.com/crypto-power/instantswap/blockexplorer/global/utils"
+	"github.com/vibros68/instantswap/blockexplorer/global/utils"
 	"math"
 	"net/http"
 	"strings"
 
-	"github.com/crypto-power/instantswap/blockexplorer"
-	"github.com/crypto-power/instantswap/blockexplorer/global/clients/blockexplorerclient"
-	"github.com/crypto-power/instantswap/blockexplorer/global/interfaces/idaemon"
+	"github.com/vibros68/instantswap/blockexplorer"
+	"github.com/vibros68/instantswap/blockexplorer/global/clients/blockexplorerclient"
+	"github.com/vibros68/instantswap/blockexplorer/global/interfaces/idaemon"
 )
 
 const (

@@ -5,14 +5,8 @@ import (
 	"fmt"
 	"os"
 
-	_ "github.com/crypto-power/instantswap/exchange/changelly"
-	_ "github.com/crypto-power/instantswap/exchange/changenow"
-	_ "github.com/crypto-power/instantswap/exchange/coinswitch"
-	_ "github.com/crypto-power/instantswap/exchange/flypme"
-	_ "github.com/crypto-power/instantswap/exchange/godex"
-	_ "github.com/crypto-power/instantswap/exchange/simpleswap"
-	_ "github.com/crypto-power/instantswap/exchange/swapzone"
-	"github.com/crypto-power/instantswap/instantswap"
+	"github.com/vibros68/instantswap/instantswap"
+	_ "github.com/vibros68/instantswap/instantswap/index"
 )
 
 // using this code:

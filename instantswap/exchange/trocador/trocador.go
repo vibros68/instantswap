@@ -3,7 +3,7 @@ package trocador
 import (
 	"encoding/json"
 	"fmt"
-	"github.com/crypto-power/instantswap/instantswap"
+	"github.com/vibros68/instantswap/instantswap"
 	"net/http"
 	"net/url"
 	"strings"
@@ -39,6 +39,10 @@ func New(conf instantswap.ExchangeConfig) (*trocador, error) {
 		return nil
 	})
 	return &trocador{client: client, conf: &conf}, nil
+}
+
+func (t *trocador) Name() string {
+	return LIBNAME
 }
 
 func (t *trocador) currenciesMap() (map[string]instantswap.Currency, error) {

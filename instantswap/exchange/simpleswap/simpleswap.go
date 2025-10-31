@@ -6,8 +6,8 @@ import (
 	"net/http"
 	"strings"
 
-	"github.com/crypto-power/instantswap/instantswap"
-	"github.com/crypto-power/instantswap/instantswap/utils"
+	"github.com/vibros68/instantswap/instantswap"
+	"github.com/vibros68/instantswap/instantswap/utils"
 )
 
 const (
@@ -33,6 +33,10 @@ func New(conf instantswap.ExchangeConfig) (*SimpleSwap, error) {
 	}
 	client := instantswap.NewClient(LIBNAME, &conf)
 	return &SimpleSwap{client: client, conf: &conf}, nil
+}
+
+func (c *SimpleSwap) Name() string {
+	return LIBNAME
 }
 
 // SetDebug set enable/disable http request/response dump

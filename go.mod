@@ -1,3 +1,3 @@
-module github.com/crypto-power/instantswap
+module github.com/vibros68/instantswap
 
 go 1.18

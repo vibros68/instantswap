@@ -7,8 +7,8 @@ import (
 	"net/url"
 	"strings"
 
-	"github.com/crypto-power/instantswap/instantswap"
-	"github.com/crypto-power/instantswap/instantswap/utils"
+	"github.com/vibros68/instantswap/instantswap"
+	"github.com/vibros68/instantswap/instantswap/utils"
 )
 
 const (
@@ -40,6 +40,10 @@ type SwapZone struct {
 	client *instantswap.Client
 	conf   *instantswap.ExchangeConfig
 	instantswap.IDExchange
+}
+
+func (c *SwapZone) Name() string {
+	return LIBNAME
 }
 
 // SetDebug set enable/disable http request/response dump.

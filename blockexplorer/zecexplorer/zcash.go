@@ -5,9 +5,9 @@ import (
 	"fmt"
 	"sort"
 
-	"github.com/crypto-power/instantswap/blockexplorer"
-	"github.com/crypto-power/instantswap/blockexplorer/global/clients/blockexplorerclient"
-	"github.com/crypto-power/instantswap/blockexplorer/global/interfaces/idaemon"
+	"github.com/vibros68/instantswap/blockexplorer"
+	"github.com/vibros68/instantswap/blockexplorer/global/clients/blockexplorerclient"
+	"github.com/vibros68/instantswap/blockexplorer/global/interfaces/idaemon"
 )
 
 const (
@@ -30,6 +30,10 @@ func New(conf blockexplorer.Config) *ZcashExplorer {
 
 type ZcashExplorer struct {
 	client *blockexplorerclient.Client
+}
+
+func (z *ZcashExplorer) VerifyByAddress(req blockexplorer.AddressVerifyRequest) (vr *blockexplorer.VerifyResult, err error) {
+	return nil, fmt.Errorf("not implemented")
 }
 
 func (z *ZcashExplorer) getNetwork() (*Network, error) {

@@ -8,7 +8,7 @@ import (
 	"strings"
 	"time"
 
-	"github.com/crypto-power/instantswap/instantswap"
+	"github.com/vibros68/instantswap/instantswap"
 )
 
 const (
@@ -36,6 +36,10 @@ type FlypMe struct {
 	client *instantswap.Client
 	conf   *instantswap.ExchangeConfig
 	instantswap.IDExchange
+}
+
+func (c *FlypMe) Name() string {
+	return LIBNAME
 }
 
 // SetDebug set enable/disable http request/response dump.
