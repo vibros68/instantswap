@@ -131,6 +131,7 @@ type AcceptOrderResult struct {
 type OrderInfoResult struct {
 	Expires        int
 	LastUpdate     string // should be datetime object
+	OrderedAmount  float64
 	ReceiveAmount  float64
 	TxID           string
 	DepositTx      string
