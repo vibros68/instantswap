@@ -215,9 +215,9 @@ func (c *GoDEX) CancelOrder(orderID string) (res string, err error) {
 }
 
 // OrderInfo accepts orderID value and more if needed per lib.
-func (c *GoDEX) OrderInfo(orderID string, extraIds ...string) (res instantswap.OrderInfoResult, err error) {
+func (c *GoDEX) OrderInfo(req instantswap.TrackingRequest) (res instantswap.OrderInfoResult, err error) {
 	var r []byte
-	r, err = c.client.Do(API_BASE, "GET", fmt.Sprintf("transaction/%s", orderID), "", false)
+	r, err = c.client.Do(API_BASE, "GET", fmt.Sprintf("transaction/%s", req.OrderId), "", false)
 	if err != nil {
 		return res, err
 	}

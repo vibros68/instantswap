@@ -160,8 +160,8 @@ func (e *ExchCx) getOrder(orderId string) (*Order, error) {
 	return &order, nil
 }
 
-func (e *ExchCx) OrderInfo(orderID string, extraIds ...string) (res instantswap.OrderInfoResult, err error) {
-	order, err := e.getOrder(orderID)
+func (e *ExchCx) OrderInfo(req instantswap.TrackingRequest) (res instantswap.OrderInfoResult, err error) {
+	order, err := e.getOrder(req.OrderId)
 	if err != nil {
 		return
 	}

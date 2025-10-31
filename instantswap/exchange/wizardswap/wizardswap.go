@@ -163,8 +163,8 @@ func (w *wizardswap) CancelOrder(orderID string) (res string, err error) {
 	return
 }
 
-func (w *wizardswap) OrderInfo(orderID string, extraIds ...string) (res instantswap.OrderInfoResult, err error) {
-	r, err := w.client.Do(API_BASE, http.MethodGet, fmt.Sprintf("exchange/%s", orderID), "", false)
+func (w *wizardswap) OrderInfo(req instantswap.TrackingRequest) (res instantswap.OrderInfoResult, err error) {
+	r, err := w.client.Do(API_BASE, http.MethodGet, fmt.Sprintf("exchange/%s", req.OrderId), "", false)
 	if err != nil {
 		return res, err
 	}

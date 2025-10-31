@@ -174,10 +174,10 @@ func (c *SimpleSwap) CancelOrder(orderID string) (res string, err error) {
 }
 
 // OrderInfo accepts orderID value and more if needed per lib.
-func (c *SimpleSwap) OrderInfo(orderID string, extraIds ...string) (res instantswap.OrderInfoResult, err error) {
+func (c *SimpleSwap) OrderInfo(req instantswap.TrackingRequest) (res instantswap.OrderInfoResult, err error) {
 	var r []byte
 	r, err = c.client.Do(API_BASE, "GET",
-		fmt.Sprintf("get_exchange?id=%s&api_key=%s", orderID, c.conf.ApiKey),
+		fmt.Sprintf("get_exchange?id=%s&api_key=%s", req.OrderId, c.conf.ApiKey),
 		"", false)
 	if err != nil {
 		return

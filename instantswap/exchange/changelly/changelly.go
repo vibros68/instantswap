@@ -327,9 +327,9 @@ func (c *Changelly) CancelOrder(oId string) (res string, err error) {
 }
 
 // OrderInfo get information on orderid/uuid.
-func (c *Changelly) OrderInfo(orderID string, extraIds ...string) (res instantswap.OrderInfoResult, err error) {
+func (c *Changelly) OrderInfo(req instantswap.TrackingRequest) (res instantswap.OrderInfoResult, err error) {
 	nonce := strconv.FormatInt(time.Now().Unix(), 10)
-	params := map[string]string{"id": orderID}
+	params := map[string]string{"id": req.OrderId}
 	tmpPayload := jsonRequest{
 		ID:      "orderInfo" + nonce,
 		JSONRPC: "2.0",
@@ -371,7 +371,7 @@ func (c *Changelly) OrderInfo(orderID string, extraIds ...string) (res instantsw
 	}
 	var finalOrderInfo OrderInfoResult
 	for _, v := range tmp {
-		if v.UUID == orderID {
+		if v.UUID == req.OrderId {
 			finalOrderInfo = v
 		}
 	}

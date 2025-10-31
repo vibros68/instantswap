@@ -209,10 +209,10 @@ func (t *trocador) CancelOrder(orderID string) (res string, err error) {
 }
 
 // OrderInfo accepts orderID value and more if needed per lib.
-func (t *trocador) OrderInfo(orderID string, extraIds ...string) (res instantswap.OrderInfoResult, err error) {
+func (t *trocador) OrderInfo(req instantswap.TrackingRequest) (res instantswap.OrderInfoResult, err error) {
 	var r []byte
 	var form = url.Values{}
-	form.Set("id", orderID)
+	form.Set("id", req.OrderId)
 	form.Set("api_key", t.conf.ApiKey)
 	r, err = t.client.Do(API_BASE, http.MethodGet,
 		fmt.Sprintf("trade?%s", form.Encode()),

@@ -171,9 +171,9 @@ func (c *EasyBit) CancelOrder(orderID string) (res string, err error) {
 	return
 }
 
-func (c *EasyBit) OrderInfo(orderID string, extraIds ...string) (res instantswap.OrderInfoResult, err error) {
+func (c *EasyBit) OrderInfo(req instantswap.TrackingRequest) (res instantswap.OrderInfoResult, err error) {
 	r, err := c.client.Do(API_BASE, http.MethodGet,
-		fmt.Sprintf("orders?id=%s", orderID), "", false)
+		fmt.Sprintf("orders?id=%s", req.OrderId), "", false)
 	if err != nil {
 		return res, err
 	}
@@ -183,7 +183,7 @@ func (c *EasyBit) OrderInfo(orderID string, extraIds ...string) (res instantswap
 		return res, err
 	}
 	for _, order := range orders {
-		if order.Id == orderID {
+		if order.Id == req.OrderId {
 			var txId string
 			if order.HashOut != nil {
 				txId = order.HashOut.(string)
@@ -199,7 +199,7 @@ func (c *EasyBit) OrderInfo(orderID string, extraIds ...string) (res instantswap
 			}, nil
 		}
 	}
-	return res, fmt.Errorf("order[%s] not found", orderID)
+	return res, fmt.Errorf("order[%s] not found", req.OrderId)
 }
 
 // "Refund" or "Failed" or "Volatility Protection" or "Action Request" or "Request Overdue"

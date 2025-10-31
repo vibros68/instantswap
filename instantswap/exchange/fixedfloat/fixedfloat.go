@@ -175,16 +175,16 @@ func (c *FixedFloat) CancelOrder(orderID string) (res string, err error) {
 }
 
 // OrderInfo accepts string of orderID value.
-func (c *FixedFloat) OrderInfo(orderID string, extraIds ...string) (res instantswap.OrderInfoResult, err error) {
-	if len(extraIds) == 0 {
+func (c *FixedFloat) OrderInfo(req instantswap.TrackingRequest) (res instantswap.OrderInfoResult, err error) {
+	if len(req.ExtraId) == 0 {
 		return res, fmt.Errorf("fetching fixedfloat order require order token")
 	}
 	var f = struct {
 		Id    string `json:"id"`
 		Token string `json:"token"`
 	}{
-		Id:    orderID,
-		Token: extraIds[0],
+		Id:    req.OrderId,
+		Token: req.ExtraId,
 	}
 	var r []byte
 	r, err = c.client.Do(API_BASE, http.MethodPost, "order", buildBody(f), false)

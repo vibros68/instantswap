@@ -186,8 +186,8 @@ func (s *stealthex) CancelOrder(orderID string) (res string, err error) {
 	return
 }
 
-func (s *stealthex) OrderInfo(orderID string, extraIds ...string) (res instantswap.OrderInfoResult, err error) {
-	r, err := s.client.Do(API_BASE, http.MethodGet, fmt.Sprintf("exchange/%s?api_key=%s", orderID, s.conf.ApiKey), "", false)
+func (s *stealthex) OrderInfo(req instantswap.TrackingRequest) (res instantswap.OrderInfoResult, err error) {
+	r, err := s.client.Do(API_BASE, http.MethodGet, fmt.Sprintf("exchange/%s?api_key=%s", req.OrderId, s.conf.ApiKey), "", false)
 	if err != nil {
 		return res, err
 	}

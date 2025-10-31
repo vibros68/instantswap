@@ -182,10 +182,10 @@ func (c *SwapZone) CancelOrder(orderID string) (res string, err error) {
 }
 
 // OrderInfo accepts orderID value and more if needed per lib.
-func (c *SwapZone) OrderInfo(orderID string, extraIds ...string) (res instantswap.OrderInfoResult, err error) {
+func (c *SwapZone) OrderInfo(req instantswap.TrackingRequest) (res instantswap.OrderInfoResult, err error) {
 	var r []byte
 	r, err = c.client.Do(API_BASE, "GET",
-		fmt.Sprintf("exchange/tx?id=%s", orderID),
+		fmt.Sprintf("exchange/tx?id=%s", req.OrderId),
 		"", false)
 	if err != nil {
 		return

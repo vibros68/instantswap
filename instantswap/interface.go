@@ -21,9 +21,14 @@ type IDExchange interface {
 	CancelOrder(orderID string) (res string, err error)
 
 	//OrderInfo accepts orderID value and more if needed per lib
-	OrderInfo(orderID string, extraIds ...string) (res OrderInfoResult, err error)
+	OrderInfo(req TrackingRequest) (res OrderInfoResult, err error)
 
 	GetExchangeRateInfo(vars ExchangeRateRequest) (res ExchangeRateInfo, err error)
+}
+
+type TrackingRequest struct {
+	OrderId string
+	ExtraId string
 }
 
 type ExchangeRateRequest struct {
