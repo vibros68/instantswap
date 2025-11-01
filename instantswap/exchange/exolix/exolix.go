@@ -4,7 +4,10 @@ import (
 	"encoding/json"
 	"fmt"
 	"net/http"
+	"net/url"
 	"strings"
+	"sync"
+	"time"
 
 	"github.com/vibros68/instantswap/instantswap"
 )
@@ -18,6 +21,13 @@ type Exolix struct {
 	client *instantswap.Client
 	conf   *instantswap.ExchangeConfig
 	instantswap.IDExchange
+
+	cache struct {
+		mu              sync.RWMutex
+		currencies      []instantswap.Currency
+		lastUpdate      time.Time
+		effectivePeriod time.Duration
+	}
 }
 
 func init() {
@@ -26,13 +36,13 @@ func init() {
 	})
 }
 
-func (s *Exolix) Name() string {
+func (e *Exolix) Name() string {
 	return LIBNAME
 }
 
 // SetDebug set enable/disable http request/response dump.
-func (s *Exolix) SetDebug(enable bool) {
-	s.conf.Debug = enable
+func (e *Exolix) SetDebug(enable bool) {
+	e.conf.Debug = enable
 }
 
 // New return a exolix client.
@@ -44,17 +54,20 @@ func New(conf instantswap.ExchangeConfig) (*Exolix, error) {
 		r.Header.Set("Authorization", conf.ApiKey)
 		return nil
 	})
-	return &Exolix{client: client, conf: &conf}, nil
+	exolixObj := &Exolix{client: client, conf: &conf}
+	// Set the currencies cache validity time to 20 minutes
+	exolixObj.cache.effectivePeriod = 20 * time.Minute
+	return exolixObj, nil
 }
 
-func (s *Exolix) GetCurrencies() (currencies []instantswap.Currency, err error) {
+func (e *Exolix) fetchCurrencies() (currencies []instantswap.Currency, err error) {
 	getCurrenciesPath := `currencies?page=%d&size=%d&withNetworks=true`
 	var exoCurrencies []Currency
 	pageSize := 100 // maximum allowable of pagesize
 	currentPage := 1
 	for {
 		// handler get currencies
-		r, err := s.client.Do(API_BASE, http.MethodGet,
+		r, err := e.client.Do(API_BASE, http.MethodGet,
 			fmt.Sprintf(getCurrenciesPath, currentPage, pageSize), "", false)
 		if err != nil {
 			return nil, err
@@ -72,24 +85,52 @@ func (s *Exolix) GetCurrencies() (currencies []instantswap.Currency, err error) 
 		// set for next page
 		currentPage++
 	}
-	currencies = make([]instantswap.Currency, len(exoCurrencies))
-	for i, curr := range exoCurrencies {
-		currencies[i] = instantswap.Currency{
-			Name:   curr.Name,
-			Symbol: strings.ToLower(curr.Code),
-		}
-		// set networks
-		currencies[i].Networks = make([]string, len(curr.Networks))
-		for _, net := range curr.Networks {
-			currencies[i].Networks = append(currencies[i].Networks, net.Network)
+	for _, curr := range exoCurrencies {
+		if len(curr.Networks) > 0 {
+			for _, net := range curr.Networks {
+				currencies = append(currencies, instantswap.Currency{
+					Name:    curr.Name,
+					Symbol:  strings.ToLower(curr.Code),
+					Network: net.Network,
+				})
+			}
+		} else {
+			currencies = append(currencies, instantswap.Currency{
+				Name:   curr.Name,
+				Symbol: strings.ToLower(curr.Code),
+			})
 		}
 	}
 	return currencies, nil
 }
 
-func (s *Exolix) GetCurrenciesToPair(from string) (currencies []instantswap.Currency, err error) {
+func (e *Exolix) GetCurrencies() (currencies []instantswap.Currency, err error) {
+	e.cache.mu.RLock()
+	// if cache is valid and element exists in array
+	if time.Since(e.cache.lastUpdate) < e.cache.effectivePeriod && len(e.cache.currencies) > 0 {
+		defer e.cache.mu.RUnlock()
+		return e.cache.currencies, nil
+	}
+	e.cache.mu.RUnlock()
+
+	// Fetch currencies
+	currencies, err = e.fetchCurrencies()
+	if err != nil {
+		return nil, err
+	}
+
+	// Update cache
+	e.cache.mu.Lock()
+	e.cache.currencies = currencies
+	e.cache.lastUpdate = time.Now()
+	e.cache.mu.Unlock()
+
+	return currencies, nil
+}
+
+func (e *Exolix) GetCurrenciesToPair(from string) (currencies []instantswap.Currency, err error) {
 	// get all currencies
-	allCurrencies, err := s.GetCurrencies()
+	allCurrencies, err := e.GetCurrencies()
 	if err != nil {
 		return nil, err
 	}
@@ -101,19 +142,22 @@ func (s *Exolix) GetCurrenciesToPair(from string) (currencies []instantswap.Curr
 	return currencies, nil
 }
 
-func (s *Exolix) GetExchangeRateInfo(vars instantswap.ExchangeRateRequest) (res instantswap.ExchangeRateInfo, err error) {
+func (e *Exolix) GetExchangeRateInfo(vars instantswap.ExchangeRateRequest) (res instantswap.ExchangeRateInfo, err error) {
 	var rateResponse RateResponse
-	fromNetworkParam := ""
-	toNetworkParam := ""
+	params := url.Values{}
+	params.Add("coinFrom", vars.From)
+	params.Add("coinTo", vars.To)
+	params.Add("amount", fmt.Sprintf("%f", vars.Amount))
+	params.Add("rateType", "fixed")
 	if vars.FromNetwork != "" {
-		fromNetworkParam = fmt.Sprintf("&networkFrom=%s", vars.FromNetwork)
+		params.Add("networkFrom", vars.FromNetwork)
 	}
 	if vars.ToNetwork != "" {
-		toNetworkParam = fmt.Sprintf("&networkTo=%s", vars.ToNetwork)
+		params.Add("networkTo", vars.ToNetwork)
 	}
-
-	r, rerr := s.client.Do(API_BASE, http.MethodGet,
-		fmt.Sprintf("rate?coinFrom=%s&coinTo=%s%s%s&amount=%f&rateType=fixed", vars.From, vars.To, fromNetworkParam, toNetworkParam, vars.Amount), "", false)
+	query := params.Encode()
+	endpoint := fmt.Sprintf("rate?%s", query)
+	r, rerr := e.client.Do(API_BASE, http.MethodGet, endpoint, "", false)
 	if rerr != nil {
 		err = rerr
 		return
@@ -131,11 +175,11 @@ func (s *Exolix) GetExchangeRateInfo(vars instantswap.ExchangeRateRequest) (res 
 	return
 }
 
-func (s *Exolix) QueryLimits(fromCurr, toCurr string) (res instantswap.QueryLimits, err error) {
+func (e *Exolix) QueryLimits(fromCurr, toCurr string) (res instantswap.QueryLimits, err error) {
 	return res, fmt.Errorf("not supported")
 }
 
-func (s *Exolix) CreateOrder(vars instantswap.CreateOrder) (res instantswap.CreateResultInfo, err error) {
+func (e *Exolix) CreateOrder(vars instantswap.CreateOrder) (res instantswap.CreateResultInfo, err error) {
 	var req = OrderRequest{
 		CoinFrom:          vars.FromCurrency,
 		CoinTo:            vars.ToCurrency,
@@ -149,7 +193,7 @@ func (s *Exolix) CreateOrder(vars instantswap.CreateOrder) (res instantswap.Crea
 		RefundExtraId:     vars.RefundExtraID,
 	}
 	body, _ := json.Marshal(req)
-	r, err := s.client.Do(API_BASE, http.MethodPost, "transactions", string(body), false)
+	r, err := e.client.Do(API_BASE, http.MethodPost, "transactions", string(body), false)
 	if err != nil {
 		return res, err
 	}
@@ -175,15 +219,15 @@ func (s *Exolix) CreateOrder(vars instantswap.CreateOrder) (res instantswap.Crea
 	return res, nil
 }
 
-func (s *Exolix) UpdateOrder(vars interface{}) (res instantswap.UpdateOrderResultInfo, err error) {
+func (e *Exolix) UpdateOrder(vars interface{}) (res instantswap.UpdateOrderResultInfo, err error) {
 	return
 }
-func (s *Exolix) CancelOrder(orderID string) (res string, err error) {
+func (e *Exolix) CancelOrder(orderID string) (res string, err error) {
 	return
 }
 
-func (s *Exolix) OrderInfo(req instantswap.TrackingRequest) (res instantswap.OrderInfoResult, err error) {
-	r, err := s.client.Do(API_BASE, http.MethodGet, fmt.Sprintf("transactions/%s", req.OrderId), "", false)
+func (e *Exolix) OrderInfo(req instantswap.TrackingRequest) (res instantswap.OrderInfoResult, err error) {
+	r, err := e.client.Do(API_BASE, http.MethodGet, fmt.Sprintf("transactions/%s", req.OrderId), "", false)
 	if err != nil {
 		return res, err
 	}
