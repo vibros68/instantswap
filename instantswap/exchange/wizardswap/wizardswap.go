@@ -61,7 +61,7 @@ func (w *wizardswap) GetCurrencies() (currencies []instantswap.Currency, err err
 			Symbol:   curr.Symbol,
 			IsFiat:   false,
 			IsStable: false,
-			Networks: nil,
+			Network:  "",
 		}
 	}
 	return currencies, nil
@@ -88,7 +88,7 @@ func (w *wizardswap) GetCurrenciesToPair(from string) (currencies []instantswap.
 			Symbol:   toCurr,
 			IsFiat:   false,
 			IsStable: false,
-			Networks: nil,
+			Network:  "",
 		})
 	}
 	return currencies, nil

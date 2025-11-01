@@ -45,7 +45,7 @@ func (t *trocador) Name() string {
 	return LIBNAME
 }
 
-func (t *trocador) currenciesMap() (map[string]instantswap.Currency, error) {
+func (t *trocador) currencies() ([]instantswap.Currency, error) {
 	var form = url.Values{}
 	form.Set("api_key", t.conf.ApiKey)
 	r, err := t.client.Do(API_BASE, "GET", "coins?"+form.Encode(), "", false)
@@ -57,23 +57,16 @@ func (t *trocador) currenciesMap() (map[string]instantswap.Currency, error) {
 	if err != nil {
 		return nil, err
 	}
-	var mapCurrencies = make(map[string]instantswap.Currency)
+	var currencies []instantswap.Currency
 	for _, tcdCurr := range coins {
-		curr, ok := mapCurrencies[tcdCurr.Ticker]
-		if ok {
-			curr.Networks = append(curr.Networks, tcdCurr.Network)
-		} else {
-			curr = instantswap.Currency{
-				Name:   tcdCurr.Name,
-				Symbol: tcdCurr.Ticker,
-				Networks: []string{
-					tcdCurr.Network,
-				},
-			}
+		curr := instantswap.Currency{
+			Name:    tcdCurr.Name,
+			Symbol:  tcdCurr.Ticker,
+			Network: tcdCurr.Network,
 		}
-		mapCurrencies[tcdCurr.Ticker] = curr
+		currencies = append(currencies, curr)
 	}
-	return mapCurrencies, nil
+	return currencies, nil
 }
 
 func (t *trocador) coin(ticker string) (*Coin, error) {
@@ -96,17 +89,18 @@ func (t *trocador) coin(ticker string) (*Coin, error) {
 }
 
 func (t *trocador) GetCurrencies() (currencies []instantswap.Currency, err error) {
-	mapCurrencies, err := t.currenciesMap()
-	for _, curr := range mapCurrencies {
-		currencies = append(currencies, curr)
-	}
-	return
+	return t.currencies()
 }
 
 func (t *trocador) GetCurrenciesToPair(from string) (currencies []instantswap.Currency, err error) {
-	mapCurrencies, err := t.currenciesMap()
-	delete(mapCurrencies, strings.ToLower(from))
-	for _, curr := range mapCurrencies {
+	currencies, err = t.currencies()
+	if err != nil {
+		return nil, err
+	}
+	for _, curr := range currencies {
+		if curr.Symbol == from {
+			continue
+		}
 		currencies = append(currencies, curr)
 	}
 	return

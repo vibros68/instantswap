@@ -63,12 +63,14 @@ func (s *SideShift) GetCurrencies() (currencies []instantswap.Currency, err erro
 	if err != nil {
 		return nil, err
 	}
-	currencies = make([]instantswap.Currency, len(csCurrencies))
-	for i, currency := range csCurrencies {
-		currencies[i] = instantswap.Currency{
-			Name:     currency.Name,
-			Symbol:   currency.Coin,
-			Networks: currency.Networks,
+	currencies = []instantswap.Currency{}
+	for _, currency := range csCurrencies {
+		for _, network := range currency.Networks {
+			currencies = append(currencies, instantswap.Currency{
+				Name:    currency.Name,
+				Symbol:  currency.Coin,
+				Network: network,
+			})
 		}
 	}
 	return
@@ -88,11 +90,13 @@ func (s *SideShift) GetCurrenciesToPair(from string) (currencies []instantswap.C
 	from = strings.ToUpper(from)
 	for _, currency := range csCurrencies {
 		if currency.Coin != from {
-			currencies = append(currencies, instantswap.Currency{
-				Name:     currency.Name,
-				Symbol:   currency.Coin,
-				Networks: currency.Networks,
-			})
+			for _, network := range currency.Networks {
+				currencies = append(currencies, instantswap.Currency{
+					Name:    currency.Name,
+					Symbol:  currency.Coin,
+					Network: network,
+				})
+			}
 		}
 	}
 	return
