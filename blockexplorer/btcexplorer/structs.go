@@ -3,7 +3,7 @@ package btcexplorer
 import (
 	"encoding/json"
 
-	"github.com/crypto-power/instantswap/blockexplorer/global/interfaces/idaemon"
+	"github.com/vibros68/instantswap/blockexplorer/global/interfaces/idaemon"
 )
 
 type jsonResponse struct {
