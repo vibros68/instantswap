@@ -62,9 +62,7 @@ func (s *stealthex) GetCurrencies() (currencies []instantswap.Currency, err erro
 			Symbol:   curr.Symbol,
 			IsFiat:   false,
 			IsStable: false,
-			Networks: []string{
-				curr.Network,
-			},
+			Network:  curr.Network,
 		}
 	}
 	return currencies, nil
@@ -87,7 +85,7 @@ func (s *stealthex) GetCurrenciesToPair(from string) (currencies []instantswap.C
 			Symbol:   toCurr,
 			IsFiat:   false,
 			IsStable: false,
-			Networks: nil,
+			Network:  "",
 		})
 	}
 	return currencies, nil

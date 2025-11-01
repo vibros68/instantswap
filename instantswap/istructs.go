@@ -221,5 +221,5 @@ type Currency struct {
 	Symbol   string
 	IsFiat   bool
 	IsStable bool
-	Networks []string
+	Network  string
 }

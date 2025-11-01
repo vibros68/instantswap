@@ -9,7 +9,7 @@ import (
 	"strings"
 	"time"
 
-	"github.com/crypto-power/instantswap/instantswap/utils"
+	"github.com/vibros68/instantswap/instantswap/utils"
 )
 
 const (
