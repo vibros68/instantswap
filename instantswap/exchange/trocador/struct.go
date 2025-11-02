@@ -1,7 +1,7 @@
 package trocador
 
 import (
-	"github.com/crypto-power/instantswap/instantswap"
+	"github.com/vibros68/instantswap/instantswap"
 	"strings"
 	"time"
 )
