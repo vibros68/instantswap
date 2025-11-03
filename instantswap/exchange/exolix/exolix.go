@@ -5,6 +5,7 @@ import (
 	"fmt"
 	"net/http"
 	"net/url"
+	"strconv"
 	"strings"
 	"sync"
 	"time"
@@ -55,20 +56,24 @@ func New(conf instantswap.ExchangeConfig) (*Exolix, error) {
 		return nil
 	})
 	exolixObj := &Exolix{client: client, conf: &conf}
-	// Set the currencies cache validity time to 20 minutes
-	exolixObj.cache.effectivePeriod = 20 * time.Minute
+	// Set the currencies cache validity time to 30 days
+	exolixObj.cache.effectivePeriod = 720 * time.Hour
 	return exolixObj, nil
 }
 
 func (e *Exolix) fetchCurrencies() (currencies []instantswap.Currency, err error) {
-	getCurrenciesPath := `currencies?page=%d&size=%d&withNetworks=true`
-	var exoCurrencies []Currency
-	pageSize := 100 // maximum allowable of pagesize
+	pageSize := "100" // maximum allowable of pagesize
 	currentPage := 1
+	var exoCurrencies []Currency
 	for {
+		params := url.Values{}
+		params.Add("page", strconv.Itoa(currentPage))
+		params.Add("size", pageSize)
+		params.Add("withNetworks", "true")
+		query := params.Encode()
 		// handler get currencies
 		r, err := e.client.Do(API_BASE, http.MethodGet,
-			fmt.Sprintf(getCurrenciesPath, currentPage, pageSize), "", false)
+			fmt.Sprintf("currencies?%s", query), "", false)
 		if err != nil {
 			return nil, err
 		}
