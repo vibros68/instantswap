@@ -1,10 +1,10 @@
 package trocador
 
 import (
+	"github.com/vibros68/instantswap/instantswap"
+
 	"strings"
 	"time"
-
-	"github.com/vibros68/instantswap/instantswap"
 )
 
 type Coin struct {
